@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>아이돌 프로필</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root{
+  --bg:#faf9f7; --card:#ffffff; --border:#e8e6e2; --text:#2b2a28;
+  --sub:#8a8781; --accent:#c9a876;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Pretendard',sans-serif;}
+body{background:var(--bg);color:var(--text);padding-bottom:60px;}
+.topbar{position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--border);
+  padding:16px 20px;display:flex;justify-content:space-between;align-items:center;z-index:10;}
+.topbar h1{font-size:18px;font-weight:700;}
+.btn{background:var(--text);color:#fff;border:none;padding:8px 14px;border-radius:20px;
+  font-size:13px;cursor:pointer;}
+.btn.light{background:var(--card);color:var(--text);border:1px solid var(--border);}
+#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px;padding:18px;}
+.cardItem{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;
+  transition:transform .15s;}
+.cardItem:active{transform:scale(0.97);}
+.cardItem img{width:100%;aspect-ratio:3/4;object-fit:cover;background:#eee;}
+.cardItem .ph{width:100%;aspect-ratio:3/4;background:#f0efec;display:flex;align-items:center;justify-content:center;color:var(--sub);font-size:12px;}
+.cardItem .info{padding:10px;}
+.cardItem .info .name{font-weight:700;font-size:14px;}
+.cardItem .info .aff{color:var(--sub);font-size:12px;margin-top:2px;}
+
+/* modal/detail */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:flex-start;justify-content:center;
+  z-index:100;overflow-y:auto;padding:20px 0 40px;}
+.overlay.show{display:flex;}
+.sheet{background:var(--bg);width:100%;max-width:480px;min-height:100vh;border-radius:0;}
+.sheet .head{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border);
+  position:sticky;top:0;background:var(--bg);}
+.sheet .head h2{font-size:16px;}
+.sheet .body{padding:20px;}
+
+/* detail view */
+.heroImg{width:100%;aspect-ratio:3/4;border-radius:16px;object-fit:cover;background:#eee;}
+.dName{font-size:22px;font-weight:800;margin-top:14px;}
+.dSub{color:var(--sub);font-size:13px;margin-top:2px;}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;}
+.tag{background:#f2efe9;color:var(--accent);border:1px solid var(--accent);padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600;}
+table.info{width:100%;border-collapse:collapse;margin-top:18px;border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+table.info tr{border-bottom:1px solid var(--border);}
+table.info tr:last-child{border-bottom:none;}
+table.info th{width:88px;text-align:left;background:#f5f4f1;padding:10px 12px;font-size:13px;color:var(--sub);vertical-align:top;font-weight:600;}
+table.info td{padding:10px 12px;font-size:13px;white-space:pre-wrap;line-height:1.5;}
+.section{margin-top:20px;}
+.section h3{font-size:14px;font-weight:700;margin-bottom:8px;border-left:3px solid var(--accent);padding-left:8px;}
+.section p{font-size:13px;line-height:1.6;white-space:pre-wrap;color:#4a4844;}
+.detailActions{display:flex;gap:8px;margin-top:20px;}
+
+/* form */
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:12px;color:var(--sub);margin-bottom:5px;font-weight:600;}
+.field input, .field textarea, .field select{width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 10px;
+  font-size:14px;background:#fff;color:var(--text);font-family:inherit;}
+.field textarea{resize:vertical;min-height:50px;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.uploadBox{border:1px dashed var(--border);border-radius:12px;padding:14px;text-align:center;cursor:pointer;color:var(--sub);font-size:13px;}
+.uploadBox img{max-width:100%;max-height:200px;border-radius:8px;}
+.formSection{margin:18px 0 6px;font-size:13px;font-weight:800;color:var(--accent);}
+.empty{text-align:center;color:var(--sub);padding:60px 20px;font-size:14px;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>✨ 프로필 아카이브</h1>
+  <button class="btn" onclick="openForm()">+ 추가</button>
+</div>
+<div id="grid"></div>
+
+<!-- 상세보기 -->
+<div class="overlay" id="detailOverlay">
+  <div class="sheet">
+    <div class="head"><span></span><button class="btn light" onclick="closeDetail()">닫기</button></div>
+    <div class="body" id="detailBody"></div>
+  </div>
+</div>
+
+<!-- 작성 폼 -->
+<div class="overlay" id="formOverlay">
+  <div class="sheet">
+    <div class="head"><h2 id="formTitle">프로필 작성</h2><button class="btn light" onclick="closeForm()">취소</button></div>
+    <div class="body">
+      <div class="field">
+        <label>사진</label>
+        <div class="uploadBox" id="uploadBox" onclick="document.getElementById('fileInput').click()">사진을 선택하세요</div>
+        <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleFile(event)">
+      </div>
+
+      <div class="formSection">기본 정보</div>
+      <div class="field"><label>이름</label><input id="f_name"></div>
+      <div class="field"><label>본명</label><input id="f_realname"></div>
+      <div class="row2">
+        <div class="field"><label>생년월일</label><input id="f_birth" placeholder="예: 2003.12.08"></div>
+        <div class="field"><label>성별</label><input id="f_gender"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>국적</label><input id="f_nation"></div>
+        <div class="field"><label>거주지</label><input id="f_live"></div>
+      </div>
+      <div class="field"><label>소속</label><input id="f_group" placeholder="예: CLOW"></div>
+      <div class="field"><label>포지션</label><input id="f_position" placeholder="예: 보컬, 리더, 센터"></div>
+      <div class="field"><label>별명</label><input id="f_nick"></div>
+      <div class="row2">
+        <div class="field"><label>신체 (키/몸무게)</label><input id="f_body" placeholder="예: 173cm, 55kg"></div>
+        <div class="field"><label>MBTI</label><input id="f_mbti"></div>
+      </div>
+      <div class="field"><label>가족관계</label><input id="f_family"></div>
+      <div class="field"><label>학력</label><textarea id="f_edu"></textarea></div>
+
+      <div class="formSection">외형</div>
+      <div class="field"><label>외모</label><textarea id="f_look"></textarea></div>
+      <div class="field"><label>착장 (스타일)</label><textarea id="f_outfit"></textarea></div>
+      <div class="field"><label>신체적 특징</label><textarea id="f_bodyfeat"></textarea></div>
+
+      <div class="formSection">성격 & 특징</div>
+      <div class="field"><label>성격/성향</label><textarea id="f_personality"></textarea></div>
+      <div class="field"><label>좋아하는 것</label><textarea id="f_like"></textarea></div>
+      <div class="field"><label>싫어하는 것</label><textarea id="f_dislike"></textarea></div>
+      <div class="field"><label>좌우명</label><input id="f_motto"></div>
+      <div class="row2">
+        <div class="field"><label>장점</label><textarea id="f_strength"></textarea></div>
+        <div class="field"><label>단점</label><textarea id="f_weakness"></textarea></div>
+      </div>
+      <div class="field"><label>취미</label><textarea id="f_hobby"></textarea></div>
+      <div class="field"><label>사소한 TMI</label><textarea id="f_tmi"></textarea></div>
+      <div class="field"><label>비밀</label><textarea id="f_secret"></textarea></div>
+
+      <div class="formSection">기타</div>
+      <div class="field"><label>인간관계</label><textarea id="f_relation"></textarea></div>
+      <div class="field"><label>능력 / 특기</label><textarea id="f_ability"></textarea></div>
+
+      <button class="btn" style="width:100%;padding:12px;margin-top:10px;" onclick="saveProfile()">저장하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDt6kg-c0Zqjfna2xuryNhUoS87EZn9dP0",
+  authDomain: "fanfic-228b7.firebaseapp.com",
+  projectId: "fanfic-228b7",
+  storageBucket: "fanfic-228b7.firebasestorage.app",
+  messagingSenderId: "261204619222",
+  appId: "1:261204619222:web:50f74e12ee4b86c8fafe77"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const colRef = collection(db, "idolProfiles");
+
+const CLOUDINARY_CLOUD = 'dbljkloal';
+const CLOUDINARY_PRESET = 'Everything';
+
+let profiles = [];
+let editingId = null;
+let uploadedImgUrl = "";
+
+const FIELDS = ["name","realname","birth","gender","nation","live","group","position","nick","body","mbti",
+"family","edu","look","outfit","bodyfeat","personality","like","dislike","motto","strength","weakness",
+"hobby","tmi","secret","relation","ability"];
+
+window.openForm = function(id){
+  editingId = id || null;
+  uploadedImgUrl = "";
+  document.getElementById('uploadBox').innerHTML = "사진을 선택하세요";
+  document.getElementById('formTitle').innerText = id ? "프로필 수정" : "프로필 작성";
+  FIELDS.forEach(f=>document.getElementById('f_'+f).value = "");
+  if(id){
+    const p = profiles.find(x=>x.id===id);
+    if(p){
+      FIELDS.forEach(f=>document.getElementById('f_'+f).value = p[f]||"");
+      uploadedImgUrl = p.image || "";
+      if(uploadedImgUrl) document.getElementById('uploadBox').innerHTML = `<img src="${uploadedImgUrl}">`;
+    }
+  }
+  document.getElementById('formOverlay').classList.add('show');
+}
+window.closeForm = function(){ document.getElementById('formOverlay').classList.remove('show'); }
+
+window.handleFile = async function(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  document.getElementById('uploadBox').innerText = "업로드 중...";
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', CLOUDINARY_PRESET);
+  try{
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, {method:'POST', body:formData});
+    const data = await res.json();
+    uploadedImgUrl = data.secure_url;
+    document.getElementById('uploadBox').innerHTML = `<img src="${uploadedImgUrl}">`;
+  }catch(err){
+    document.getElementById('uploadBox').innerText = "업로드 실패, 다시 시도";
+  }
+}
+
+window.saveProfile = async function(){
+  const obj = {image: uploadedImgUrl};
+  FIELDS.forEach(f=>obj[f]=document.getElementById('f_'+f).value);
+  if(!obj.name){ alert("이름을 입력해주세요"); return; }
+  if(editingId){
+    await updateDoc(doc(db,"idolProfiles",editingId), obj);
+  }else{
+    await addDoc(colRef, obj);
+  }
+  closeForm();
+  loadProfiles();
+}
+
+window.deleteProfile = async function(id){
+  if(!confirm("삭제하시겠습니까?")) return;
+  await deleteDoc(doc(db,"idolProfiles",id));
+  closeDetail();
+  loadProfiles();
+}
+
+window.closeDetail = function(){ document.getElementById('detailOverlay').classList.remove('show'); }
+
+window.openDetail = function(id){
+  const p = profiles.find(x=>x.id===id);
+  if(!p) return;
+  const rows = [
+    ["본명", p.realname],["생년월일", p.birth],["성별", p.gender],["국적", p.nation],["거주지", p.live],
+    ["신체", p.body],["MBTI", p.mbti],["가족관계", p.family],["학력", p.edu]
+  ].filter(r=>r[1]);
+  const sections = [
+    ["외모", p.look],["착장", p.outfit],["신체적 특징", p.bodyfeat],
+    ["성격/성향", p.personality],["좋아하는 것", p.like],["싫어하는 것", p.dislike],["좌우명", p.motto],
+    ["장점", p.strength],["단점", p.weakness],["취미", p.hobby],["사소한 TMI", p.tmi],["비밀", p.secret],
+    ["인간관계", p.relation],["능력/특기", p.ability]
+  ].filter(s=>s[1]);
+
+  document.getElementById('detailBody').innerHTML = `
+    ${p.image ? `<img class="heroImg" src="${p.image}">` : ''}
+    <div class="dName">${p.name}</div>
+    <div class="dSub">${p.group||''} ${p.position?(' · '+p.position):''}</div>
+    <div class="tags">
+      ${p.group?`<span class="tag">${p.group}</span>`:''}
+      ${p.position?`<span class="tag">${p.position}</span>`:''}
+      ${p.nick?`<span class="tag">${p.nick}</span>`:''}
+    </div>
+    ${rows.length?`<table class="info">${rows.map(r=>`<tr><th>${r[0]}</th><td>${r[1]}</td></tr>`).join('')}</table>`:''}
+    ${sections.map(s=>`<div class="section"><h3>${s[0]}</h3><p>${s[1]}</p></div>`).join('')}
+    <div class="detailActions">
+      <button class="btn" onclick="openForm('${id}')">수정</button>
+      <button class="btn light" onclick="deleteProfile('${id}')">삭제</button>
+    </div>
+  `;
+  document.getElementById('detailOverlay').classList.add('show');
+}
+
+window.loadProfiles = async function(){
+  const snap = await getDocs(colRef);
+  profiles = [];
+  snap.forEach(d=>profiles.push({id:d.id, ...d.data()}));
+  renderGrid();
+}
+
+function renderGrid(){
+  const grid = document.getElementById('grid');
+  if(profiles.length===0){
+    grid.innerHTML = `<div class="empty" style="grid-column:1/-1;">아직 등록된 프로필이 없습니다.<br>우측 상단 '+ 추가' 버튼을 눌러보세요.</div>`;
+    return;
+  }
+  grid.innerHTML = profiles.map(p=>`
+    <div class="cardItem" onclick="openDetail('${p.id}')">
+      ${p.image ? `<img src="${p.image}">` : `<div class="ph">No Image</div>`}
+      <div class="info">
+        <div class="name">${p.name}</div>
+        <div class="aff">${p.group||''}${p.position?(' · '+p.position):''}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+loadProfiles();
+</script>
+</body>
+</html>
