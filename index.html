@@ -240,13 +240,8 @@ window.setCat = function(c){ activeCat = c; renderCatBar(); renderGrid(); }
 window.updateAgeTag = function(){
   const v = document.getElementById('f_birth').value;
   const tag = document.getElementById('ageTag');
-  if(!v){ tag.innerText=""; return; }
-  const b = new Date(v); const t = new Date();
-  if(isNaN(b.getTime())){ tag.innerText=""; return; }
-  let age = t.getFullYear() - b.getFullYear();
-  const m = t.getMonth() - b.getMonth();
-  if(m < 0 || (m===0 && t.getDate() < b.getDate())) age--;
-  tag.innerText = "만 " + age + "세";
+  const age = calcAge(v);
+  tag.innerText = age || "";
 }
 
 // ---- photo arrays ----
@@ -281,78 +276,144 @@ function renderPhotoRow(key){
 }
 window.removePhoto = function(key, i){ state[key].splice(i,1); renderPhotoRow(key); saveDraft(); }
 
-// ---- education ----
-window.addEdu = function(entry){
-  state.education.push(entry || {level:"초등학교", school:"", period:""});
-  renderEdu();
-  saveDraft();
+// ---- education (draft: only committed on 저장) ----
+let eduDraft = null;
+window.addEdu = function(){ eduDraft = {index:-1, data:{level:"초등학교", school:"", period:""}}; renderEdu(); }
+window.editEdu = function(i){ eduDraft = {index:i, data:Object.assign({},state.education[i])}; renderEdu(); }
+window.cancelEdu = function(){ eduDraft = null; renderEdu(); }
+window.saveEdu = function(){
+  if(!eduDraft) return;
+  if(eduDraft.index===-1) state.education.push(eduDraft.data);
+  else state.education[eduDraft.index] = eduDraft.data;
+  eduDraft = null; renderEdu(); saveDraft();
 }
+window.removeEdu = function(i){ state.education.splice(i,1); renderEdu(); saveDraft(); }
 function renderEdu(){
   const box = document.getElementById('eduList');
-  box.innerHTML = state.education.map((ed,i)=>`
-    <div class="rowLine">
-      <select onchange="state.education[${i}].level=this.value;saveDraft()">
-        ${["초등학교","중학교","고등학교","대학교","기타"].map(l=>`<option ${ed.level===l?'selected':''}>${l}</option>`).join('')}
-      </select>
-      <input placeholder="학교명" value="${ed.school}" oninput="state.education[${i}].school=this.value;saveDraft()">
-      <input placeholder="기간(예:전학)" value="${ed.period}" oninput="state.education[${i}].period=this.value;saveDraft()">
-      <button class="delX" onclick="state.education.splice(${i},1);renderEdu();saveDraft()">×</button>
+  let html = state.education.map((ed,i)=>`
+    <div class="subBox">
+      <div>· [${ed.level}] ${ed.school} ${ed.period?('('+ed.period+')'):''}</div>
+      <div class="rowLine">
+        <button class="btn light sm" onclick="editEdu(${i})">수정</button>
+        <button class="btn light sm" onclick="removeEdu(${i})">삭제</button>
+      </div>
     </div>`).join('');
+  if(eduDraft){
+    const ed = eduDraft.data;
+    html += `
+    <div class="subBox">
+      <div class="rowLine">
+        <select onchange="eduDraft.data.level=this.value">
+          ${["초등학교","중학교","고등학교","대학교","기타"].map(l=>`<option ${ed.level===l?'selected':''}>${l}</option>`).join('')}
+        </select>
+        <input placeholder="학교명" value="${ed.school}" oninput="eduDraft.data.school=this.value">
+        <input placeholder="기간(예:전학)" value="${ed.period}" oninput="eduDraft.data.period=this.value">
+      </div>
+      <div class="rowLine">
+        <button class="btn sm" onclick="saveEdu()">저장</button>
+        <button class="btn light sm" onclick="cancelEdu()">취소</button>
+      </div>
+    </div>`;
+  }
+  box.innerHTML = html;
 }
 
-// ---- family ----
-window.addFamily = function(entry){
-  state.family.push(entry || {relation:"", name:"", photo:""});
-  renderFamily();
-  saveDraft();
+// ---- family (draft: only committed on 저장) ----
+let famDraft = null;
+window.addFamily = function(){ famDraft = {index:-1, data:{relation:"", name:"", photo:""}}; renderFamily(); }
+window.editFamily = function(i){ famDraft = {index:i, data:Object.assign({},state.family[i])}; renderFamily(); }
+window.cancelFamily = function(){ famDraft = null; renderFamily(); }
+window.saveFamily = function(){
+  if(!famDraft) return;
+  if(famDraft.index===-1) state.family.push(famDraft.data);
+  else state.family[famDraft.index] = famDraft.data;
+  famDraft = null; renderFamily(); saveDraft();
 }
-window.familyFileUpload = async function(i, e){
-  const file = e.target.files[0]; if(!file) return;
-  state.family[i].photo = await uploadToCloudinary(file);
-  renderFamily(); saveDraft();
+window.removeFamily = function(i){ state.family.splice(i,1); renderFamily(); saveDraft(); }
+window.familyFileUpload = async function(e){
+  const file = e.target.files[0]; if(!file || !famDraft) return;
+  famDraft.data.photo = await uploadToCloudinary(file);
+  renderFamily();
 }
 function renderFamily(){
   const box = document.getElementById('familyList');
-  box.innerHTML = state.family.map((f,i)=>`
+  let html = state.family.map((f,i)=>`
+    <div class="miniCard">
+      ${f.photo?`<img src="${f.photo}">`:'<div style="width:44px;height:44px;background:#eee;border-radius:8px"></div>'}
+      <div style="flex:1"><div class="mc-name">${f.name||''}</div><div class="mc-sub">${f.relation||''}</div></div>
+      <button class="btn light sm" onclick="editFamily(${i})">수정</button>
+      <button class="btn light sm" onclick="removeFamily(${i})">삭제</button>
+    </div>`).join('');
+  if(famDraft){
+    const f = famDraft.data;
+    html += `
     <div class="subBox">
       <div class="rowLine">
-        <input placeholder="관계(예:엄마)" value="${f.relation}" oninput="state.family[${i}].relation=this.value;saveDraft()">
-        <input placeholder="이름" value="${f.name}" oninput="state.family[${i}].name=this.value;saveDraft()">
-        <button class="delX" onclick="state.family.splice(${i},1);renderFamily();saveDraft()">×</button>
+        <input placeholder="관계(예:엄마)" value="${f.relation}" oninput="famDraft.data.relation=this.value">
+        <input placeholder="이름" value="${f.name}" oninput="famDraft.data.name=this.value">
       </div>
       <div class="photoRow" style="margin-top:6px">
         ${f.photo ? `<img src="${f.photo}" style="width:60px;height:60px;object-fit:cover;border-radius:8px">` : ''}
         <div class="addTile" style="width:60px;height:60px" onclick="this.nextElementSibling.click()">+</div>
-        <input type="file" accept="image/*" style="display:none" onchange="familyFileUpload(${i}, event)">
+        <input type="file" accept="image/*" style="display:none" onchange="familyFileUpload(event)">
       </div>
-    </div>`).join('');
+      <div class="rowLine">
+        <button class="btn sm" onclick="saveFamily()">저장</button>
+        <button class="btn light sm" onclick="cancelFamily()">취소</button>
+      </div>
+    </div>`;
+  }
+  box.innerHTML = html;
 }
 
-// ---- relations ----
-window.addRelation = function(entry){
-  state.relations.push(entry || {id:"", text:""});
-  renderRelations();
-  saveDraft();
+// ---- relations (draft: only committed on 저장) ----
+let relDraft = null;
+window.addRelation = function(){ relDraft = {index:-1, data:{id:"", text:""}}; renderRelations(); }
+window.editRelation = function(i){ relDraft = {index:i, data:Object.assign({},state.relations[i])}; renderRelations(); }
+window.cancelRelation = function(){ relDraft = null; renderRelations(); }
+window.saveRelation = function(){
+  if(!relDraft) return;
+  if(relDraft.index===-1) state.relations.push(relDraft.data);
+  else state.relations[relDraft.index] = relDraft.data;
+  relDraft = null; renderRelations(); saveDraft();
 }
+window.removeRelation = function(i){ state.relations.splice(i,1); renderRelations(); saveDraft(); }
 function renderRelations(){
   const box = document.getElementById('relList');
   const others = profiles.filter(p=>p.id!==editingId);
-  box.innerHTML = state.relations.map((r,i)=>`
+  let html = state.relations.map((r,i)=>{
+    const other = others.find(o=>o.id===r.id);
+    return `<div class="miniCard">
+      ${other&&other.image?`<img src="${other.image}">`:'<div style="width:44px;height:44px;background:#eee;border-radius:8px"></div>'}
+      <div style="flex:1"><div class="mc-name">${other?other.name:'(미선택)'}</div><div class="mc-sub">${r.text||''}</div></div>
+      <button class="btn light sm" onclick="editRelation(${i})">수정</button>
+      <button class="btn light sm" onclick="removeRelation(${i})">삭제</button>
+    </div>`;
+  }).join('');
+  if(relDraft){
+    const r = relDraft.data;
+    html += `
     <div class="subBox">
       <div class="rowLine">
-        <select onchange="state.relations[${i}].id=this.value;saveDraft()">
+        <select onchange="relDraft.data.id=this.value">
           <option value="">-- 인물 선택 --</option>
           ${others.map(o=>`<option value="${o.id}" ${r.id===o.id?'selected':''}>${o.name}</option>`).join('')}
         </select>
-        <button class="delX" onclick="state.relations.splice(${i},1);renderRelations();saveDraft()">×</button>
       </div>
-      <textarea placeholder="관계 설명" oninput="state.relations[${i}].text=this.value;saveDraft()">${r.text}</textarea>
-    </div>`).join('');
+      <textarea placeholder="관계 설명" oninput="relDraft.data.text=this.value">${r.text}</textarea>
+      <div class="rowLine">
+        <button class="btn sm" onclick="saveRelation()">저장</button>
+        <button class="btn light sm" onclick="cancelRelation()">취소</button>
+      </div>
+    </div>`;
+  }
+  box.innerHTML = html;
 }
 
 // ---- form open/close ----
 window.openForm = function(id){
   editingId = id || null;
+  eduDraft = null; famDraft = null; relDraft = null;
   state = { image:"", outfitPhotos:[], childPhotos:[], bagPhotos:[], education:[], family:[], relations:[] };
   SIMPLE_FIELDS.forEach(f=>document.getElementById('f_'+f).value = "");
   document.getElementById('uploadBox').innerHTML = "사진을 선택하세요";
@@ -406,7 +467,7 @@ window.closeDetail = function(){ document.getElementById('detailOverlay').classL
 
 function calcAge(birth){
   if(!birth) return "";
-  const b = new Date(birth); const t = new Date();
+  const b = new Date(birth.replace(/[.\s]+/g,'-').replace(/-+$/,'')); const t = new Date();
   if(isNaN(b.getTime())) return "";
   let age = t.getFullYear() - b.getFullYear();
   const m = t.getMonth() - b.getMonth();
@@ -418,7 +479,7 @@ window.openDetail = function(id){
   const p = profiles.find(x=>x.id===id);
   if(!p) return;
   const rows = [
-    ["본명", p.realname],["생년월일", p.birth ? (p.birth+" ("+calcAge(p.birth)+")") : ""],
+    ["본명", p.realname],["생년월일", p.birth ? (p.birth+(calcAge(p.birth)?(" ("+calcAge(p.birth)+")"):"")) : ""],
     ["성별", p.gender],["국적", p.nation],["출생지", p.live],["신체", p.body],["MBTI", p.mbti]
   ].filter(r=>r[1]);
 
