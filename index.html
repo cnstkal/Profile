@@ -121,11 +121,11 @@ table.info td{padding:10px 12px;font-size:13px;white-space:pre-wrap;line-height:
         </div>
       </div>
       <div class="field"><label>포지션</label><input id="f_position" placeholder="예: 보컬, 리더, 센터"></div>
-      <div class="field"><label>별명</label><input id="f_nick"></div>
       <div class="row2">
         <div class="field"><label>신체 (키/몸무게)</label><input id="f_body" placeholder="예: 173cm, 55kg"></div>
         <div class="field"><label>MBTI</label><input id="f_mbti"></div>
       </div>
+      <div class="field"><label>별명</label><input id="f_nick"></div>
 
       <div class="formSection">학력</div>
       <div id="eduList"></div>
@@ -277,15 +277,15 @@ function renderPhotoRow(key){
 window.removePhoto = function(key, i){ state[key].splice(i,1); renderPhotoRow(key); saveDraft(); }
 
 // ---- education (draft: only committed on 저장) ----
-let eduDraft = null;
-window.addEdu = function(){ eduDraft = {index:-1, data:{level:"초등학교", school:"", period:""}}; renderEdu(); }
-window.editEdu = function(i){ eduDraft = {index:i, data:Object.assign({},state.education[i])}; renderEdu(); }
-window.cancelEdu = function(){ eduDraft = null; renderEdu(); }
+window.eduDraft = null;
+window.addEdu = function(){ window.eduDraft = {index:-1, data:{level:"초등학교", school:"", period:""}}; renderEdu(); }
+window.editEdu = function(i){ window.eduDraft = {index:i, data:Object.assign({},state.education[i])}; renderEdu(); }
+window.cancelEdu = function(){ window.eduDraft = null; renderEdu(); }
 window.saveEdu = function(){
-  if(!eduDraft) return;
-  if(eduDraft.index===-1) state.education.push(eduDraft.data);
-  else state.education[eduDraft.index] = eduDraft.data;
-  eduDraft = null; renderEdu(); saveDraft();
+  if(!window.eduDraft) return;
+  if(window.eduDraft.index===-1) state.education.push(window.eduDraft.data);
+  else state.education[window.eduDraft.index] = window.eduDraft.data;
+  window.eduDraft = null; renderEdu(); saveDraft();
 }
 window.removeEdu = function(i){ state.education.splice(i,1); renderEdu(); saveDraft(); }
 function renderEdu(){
@@ -298,16 +298,16 @@ function renderEdu(){
         <button class="btn light sm" onclick="removeEdu(${i})">삭제</button>
       </div>
     </div>`).join('');
-  if(eduDraft){
-    const ed = eduDraft.data;
+  if(window.eduDraft){
+    const ed = window.eduDraft.data;
     html += `
     <div class="subBox">
       <div class="rowLine">
-        <select onchange="eduDraft.data.level=this.value">
+        <select onchange="window.eduDraft.data.level=this.value">
           ${["초등학교","중학교","고등학교","대학교","기타"].map(l=>`<option ${ed.level===l?'selected':''}>${l}</option>`).join('')}
         </select>
-        <input placeholder="학교명" value="${ed.school}" oninput="eduDraft.data.school=this.value">
-        <input placeholder="기간(예:전학)" value="${ed.period}" oninput="eduDraft.data.period=this.value">
+        <input placeholder="학교명" value="${ed.school}" oninput="window.eduDraft.data.school=this.value">
+        <input placeholder="기간(예:전학)" value="${ed.period}" oninput="window.eduDraft.data.period=this.value">
       </div>
       <div class="rowLine">
         <button class="btn sm" onclick="saveEdu()">저장</button>
@@ -319,20 +319,20 @@ function renderEdu(){
 }
 
 // ---- family (draft: only committed on 저장) ----
-let famDraft = null;
-window.addFamily = function(){ famDraft = {index:-1, data:{relation:"", name:"", photo:""}}; renderFamily(); }
-window.editFamily = function(i){ famDraft = {index:i, data:Object.assign({},state.family[i])}; renderFamily(); }
-window.cancelFamily = function(){ famDraft = null; renderFamily(); }
+window.famDraft = null;
+window.addFamily = function(){ window.famDraft = {index:-1, data:{relation:"", name:"", photo:""}}; renderFamily(); }
+window.editFamily = function(i){ window.famDraft = {index:i, data:Object.assign({},state.family[i])}; renderFamily(); }
+window.cancelFamily = function(){ window.famDraft = null; renderFamily(); }
 window.saveFamily = function(){
-  if(!famDraft) return;
-  if(famDraft.index===-1) state.family.push(famDraft.data);
-  else state.family[famDraft.index] = famDraft.data;
-  famDraft = null; renderFamily(); saveDraft();
+  if(!window.famDraft) return;
+  if(window.famDraft.index===-1) state.family.push(window.famDraft.data);
+  else state.family[window.famDraft.index] = window.famDraft.data;
+  window.famDraft = null; renderFamily(); saveDraft();
 }
 window.removeFamily = function(i){ state.family.splice(i,1); renderFamily(); saveDraft(); }
 window.familyFileUpload = async function(e){
-  const file = e.target.files[0]; if(!file || !famDraft) return;
-  famDraft.data.photo = await uploadToCloudinary(file);
+  const file = e.target.files[0]; if(!file || !window.famDraft) return;
+  window.famDraft.data.photo = await uploadToCloudinary(file);
   renderFamily();
 }
 function renderFamily(){
@@ -344,13 +344,13 @@ function renderFamily(){
       <button class="btn light sm" onclick="editFamily(${i})">수정</button>
       <button class="btn light sm" onclick="removeFamily(${i})">삭제</button>
     </div>`).join('');
-  if(famDraft){
-    const f = famDraft.data;
+  if(window.famDraft){
+    const f = window.famDraft.data;
     html += `
     <div class="subBox">
       <div class="rowLine">
-        <input placeholder="관계(예:엄마)" value="${f.relation}" oninput="famDraft.data.relation=this.value">
-        <input placeholder="이름" value="${f.name}" oninput="famDraft.data.name=this.value">
+        <input placeholder="관계(예:엄마)" value="${f.relation}" oninput="window.famDraft.data.relation=this.value">
+        <input placeholder="이름" value="${f.name}" oninput="window.famDraft.data.name=this.value">
       </div>
       <div class="photoRow" style="margin-top:6px">
         ${f.photo ? `<img src="${f.photo}" style="width:60px;height:60px;object-fit:cover;border-radius:8px">` : ''}
@@ -367,15 +367,15 @@ function renderFamily(){
 }
 
 // ---- relations (draft: only committed on 저장) ----
-let relDraft = null;
-window.addRelation = function(){ relDraft = {index:-1, data:{id:"", text:""}}; renderRelations(); }
-window.editRelation = function(i){ relDraft = {index:i, data:Object.assign({},state.relations[i])}; renderRelations(); }
-window.cancelRelation = function(){ relDraft = null; renderRelations(); }
+window.relDraft = null;
+window.addRelation = function(){ window.relDraft = {index:-1, data:{id:"", text:""}}; renderRelations(); }
+window.editRelation = function(i){ window.relDraft = {index:i, data:Object.assign({},state.relations[i])}; renderRelations(); }
+window.cancelRelation = function(){ window.relDraft = null; renderRelations(); }
 window.saveRelation = function(){
-  if(!relDraft) return;
-  if(relDraft.index===-1) state.relations.push(relDraft.data);
-  else state.relations[relDraft.index] = relDraft.data;
-  relDraft = null; renderRelations(); saveDraft();
+  if(!window.relDraft) return;
+  if(window.relDraft.index===-1) state.relations.push(window.relDraft.data);
+  else state.relations[window.relDraft.index] = window.relDraft.data;
+  window.relDraft = null; renderRelations(); saveDraft();
 }
 window.removeRelation = function(i){ state.relations.splice(i,1); renderRelations(); saveDraft(); }
 function renderRelations(){
@@ -390,17 +390,17 @@ function renderRelations(){
       <button class="btn light sm" onclick="removeRelation(${i})">삭제</button>
     </div>`;
   }).join('');
-  if(relDraft){
-    const r = relDraft.data;
+  if(window.relDraft){
+    const r = window.relDraft.data;
     html += `
     <div class="subBox">
       <div class="rowLine">
-        <select onchange="relDraft.data.id=this.value">
+        <select onchange="window.relDraft.data.id=this.value">
           <option value="">-- 인물 선택 --</option>
           ${others.map(o=>`<option value="${o.id}" ${r.id===o.id?'selected':''}>${o.name}</option>`).join('')}
         </select>
       </div>
-      <textarea placeholder="관계 설명" oninput="relDraft.data.text=this.value">${r.text}</textarea>
+      <textarea placeholder="관계 설명" oninput="window.relDraft.data.text=this.value">${r.text}</textarea>
       <div class="rowLine">
         <button class="btn sm" onclick="saveRelation()">저장</button>
         <button class="btn light sm" onclick="cancelRelation()">취소</button>
@@ -413,7 +413,7 @@ function renderRelations(){
 // ---- form open/close ----
 window.openForm = function(id){
   editingId = id || null;
-  eduDraft = null; famDraft = null; relDraft = null;
+  window.eduDraft = null; window.famDraft = null; window.relDraft = null;
   state = { image:"", outfitPhotos:[], childPhotos:[], bagPhotos:[], education:[], family:[], relations:[] };
   SIMPLE_FIELDS.forEach(f=>document.getElementById('f_'+f).value = "");
   document.getElementById('uploadBox').innerHTML = "사진을 선택하세요";
@@ -506,11 +506,6 @@ window.openDetail = function(id){
     ${p.image ? `<img class="heroImg" src="${p.image}">` : ''}
     <div class="dName">${p.name}</div>
     <div class="dSub">${p.group||''} ${p.position?(' · '+p.position):''}</div>
-    <div class="tags">
-      ${p.group?`<span class="tag">${p.group}</span>`:''}
-      ${p.position?`<span class="tag">${p.position}</span>`:''}
-      ${p.nick?`<span class="tag">${p.nick}</span>`:''}
-    </div>
     ${rows.length?`<table class="info">${rows.map(r=>`<tr><th>${r[0]}</th><td>${r[1]}</td></tr>`).join('')}</table>`:''}
     ${eduHtml?`<div class="section"><h3>학력</h3><p>${eduHtml}</p></div>`:''}
     ${famHtml?`<div class="section"><h3>가족관계</h3>${famHtml}</div>`:''}
