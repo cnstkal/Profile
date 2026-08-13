@@ -30,7 +30,7 @@ body{background:var(--bg);color:var(--text);padding-bottom:60px;overflow-x:hidde
 .sheet{background:var(--bg);width:100%;max-width:480px;min-height:100vh;overflow-x:hidden;}
 .sheet .head{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg);z-index:2;}
 .sheet .head h2{font-size:16px;}
-.sheet .body{padding:20px;}
+.sheet .body{padding:24px 20px 40px;}
 .heroImg{width:100%;aspect-ratio:3/4;border-radius:16px;object-fit:cover;background:#eee;}
 .dName{font-size:22px;font-weight:800;margin-top:14px;}
 .dSub{color:var(--sub);font-size:13px;margin-top:2px;}
@@ -59,7 +59,7 @@ table.info td{padding:10px 12px;font-size:13px;white-space:pre-wrap;line-height:
 .row2 .field{min-width:0;}
 .uploadBox{border:1px dashed var(--border);border-radius:12px;padding:14px;text-align:center;cursor:pointer;color:var(--sub);font-size:13px;}
 .uploadBox img{max-width:100%;max-height:200px;border-radius:8px;}
-.formSection{margin:18px 0 6px;font-size:13px;font-weight:800;color:var(--accent);}
+.formSection{margin:32px 0 14px;font-size:13px;font-weight:800;color:var(--accent);}
 .empty{text-align:center;color:var(--sub);padding:60px 20px;font-size:14px;}
 .addTile{width:90px;height:90px;border:1px dashed var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--sub);font-size:22px;cursor:pointer;}
 .rowLine{display:flex;gap:6px;align-items:center;margin-top:6px;}
@@ -89,7 +89,7 @@ table.info td{padding:10px 12px;font-size:13px;white-space:pre-wrap;line-height:
 
 <div class="overlay" id="formOverlay">
   <div class="sheet">
-    <div class="head"><h2 id="formTitle">프로필 작성</h2><button class="btn" onclick="saveProfile()">저장</button></div>
+    <div class="head"><h2 id="formTitle">프로필 작성</h2><div style="display:flex;gap:8px"><button class="btn light" onclick="closeForm()">취소</button><button class="btn" onclick="saveProfile()">저장</button></div></div>
     <div class="body" id="formBody">
       <div class="field">
         <label>사진</label>
@@ -101,7 +101,7 @@ table.info td{padding:10px 12px;font-size:13px;white-space:pre-wrap;line-height:
       <div class="field"><label>이름</label><input id="f_name"></div>
       <div class="field"><label>본명</label><input id="f_realname"></div>
       <div class="row2">
-        <div class="field"><label>생년월일</label><input type="date" id="f_birth" onchange="updateAgeTag()"><div class="ageTag" id="ageTag"></div></div>
+        <div class="field"><label>생년월일</label><input type="text" id="f_birth" placeholder="예: 2001-05-12" oninput="updateAgeTag()"><div class="ageTag" id="ageTag"></div></div>
         <div class="field"><label>성별</label>
           <select id="f_gender">
             <option value="">선택</option>
@@ -173,7 +173,6 @@ table.info td{padding:10px 12px;font-size:13px;white-space:pre-wrap;line-height:
         <input type="file" id="bagFile" accept="image/*" style="display:none" onchange="handleArrFile(event,'bagPhotos')">
       </div>
 
-      <button class="btn" style="width:100%;padding:12px;margin-top:16px;" onclick="saveProfile()">저장하기</button>
     </div>
   </div>
 </div>
@@ -243,6 +242,7 @@ window.updateAgeTag = function(){
   const tag = document.getElementById('ageTag');
   if(!v){ tag.innerText=""; return; }
   const b = new Date(v); const t = new Date();
+  if(isNaN(b.getTime())){ tag.innerText=""; return; }
   let age = t.getFullYear() - b.getFullYear();
   const m = t.getMonth() - b.getMonth();
   if(m < 0 || (m===0 && t.getDate() < b.getDate())) age--;
@@ -407,6 +407,7 @@ window.closeDetail = function(){ document.getElementById('detailOverlay').classL
 function calcAge(birth){
   if(!birth) return "";
   const b = new Date(birth); const t = new Date();
+  if(isNaN(b.getTime())) return "";
   let age = t.getFullYear() - b.getFullYear();
   const m = t.getMonth() - b.getMonth();
   if(m < 0 || (m===0 && t.getDate() < b.getDate())) age--;
