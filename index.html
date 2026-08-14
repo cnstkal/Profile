@@ -75,12 +75,14 @@ table.info td{padding:10px 12px;font-size:13px;white-space:pre-wrap;line-height:
 .delX{background:#eee;border:none;border-radius:6px;width:28px;height:28px;font-size:14px;cursor:pointer;flex:0 0 auto;}
 .subBox{border:1px solid var(--border);border-radius:10px;padding:10px;margin-top:8px;}
 .ageTag{font-size:12px;color:var(--sub);margin-top:4px;}
-.relmapWrap{position:relative;display:flex;flex-wrap:wrap;align-items:flex-start;gap:12px;}
-.relGroupBox{border:2px solid var(--accent);border-radius:16px;padding:14px;background:rgba(201,168,118,.06);}
-.relGroupTitle{font-weight:800;font-size:13px;color:var(--accent);margin-bottom:8px;}
-.relAgencyBox{border:1px dashed var(--border);border-radius:12px;padding:8px;margin:6px 0;display:flex;flex-wrap:wrap;}
-.relAgencyTitle{width:100%;font-size:11px;color:var(--sub);margin-bottom:6px;}
-.relNode{display:flex;flex-direction:column;align-items:center;width:64px;margin:6px;cursor:pointer;text-align:center;position:relative;z-index:1;}
+.relmapWrap{position:relative;display:inline-flex;gap:80px;padding:50px;align-items:flex-start;}
+.relGroupCluster{display:flex;flex-direction:column;gap:8px;}
+.relGroupLabel{font-weight:800;font-size:14px;color:var(--accent);}
+.relAgencyRow{display:flex;gap:40px;flex-wrap:wrap;max-width:460px;}
+.relAgencyCluster{display:flex;flex-direction:column;gap:6px;}
+.relAgencyLabel{font-size:11px;color:var(--sub);}
+.relNodeRow{display:flex;flex-wrap:wrap;gap:16px;max-width:260px;}
+.relNode{display:flex;flex-direction:column;align-items:center;width:64px;cursor:pointer;text-align:center;position:relative;z-index:1;}
 .relNode img{width:48px;height:48px;border-radius:50%;object-fit:cover;background:#eee;border:2px solid #fff;box-shadow:0 0 0 1px var(--border);}
 .relNode .relNodeName{font-size:11px;margin-top:4px;font-weight:600;line-height:1.2;}
 #relmapSvg{position:absolute;top:0;left:0;pointer-events:none;z-index:0;}
@@ -112,8 +114,8 @@ table.info td{padding:10px 12px;font-size:13px;white-space:pre-wrap;line-height:
 <div class="overlay" id="relmapOverlay">
   <div class="sheet" style="max-width:100%;">
     <div class="head"><h2>인물관계도</h2><button class="btn light" onclick="closeRelMap()">닫기</button></div>
-    <div class="body" style="padding:16px;overflow:auto;">
-      <div id="relmapCanvas"></div>
+    <div class="body" style="padding:16px;overflow:auto;-webkit-overflow-scrolling:touch;">
+      <div id="relmapCanvas" style="display:inline-block;min-width:100%;"></div>
     </div>
   </div>
 </div>
@@ -514,18 +516,18 @@ function renderRelMap(){
       if(!byAgency[a]) byAgency[a]=[];
       byAgency[a].push(p);
     });
-    html += `<div class="relGroupBox"><div class="relGroupTitle">${g}</div>`;
+    html += `<div class="relGroupCluster"><div class="relGroupLabel">${g}</div><div class="relAgencyRow">`;
     Object.keys(byAgency).forEach(a=>{
-      html += `<div class="relAgencyBox"><div class="relAgencyTitle">${a}</div>`;
+      html += `<div class="relAgencyCluster"><div class="relAgencyLabel">${a}</div><div class="relNodeRow">`;
       byAgency[a].forEach(p=>{
         html += `<div class="relNode" data-id="${p.id}" onclick="closeRelMap();openDetail('${p.id}')">
           ${p.image?`<img src="${p.image}">`:`<div style="width:48px;height:48px;border-radius:50%;background:#eee"></div>`}
           <div class="relNodeName">${p.name}</div>
         </div>`;
       });
-      html += `</div>`;
+      html += `</div></div>`;
     });
-    html += `</div>`;
+    html += `</div></div>`;
   });
   html += `</div>`;
   canvas.innerHTML = html;
@@ -550,7 +552,7 @@ function drawRelEdges(){
       edges.push({a:p.id, b:r.id, text:r.text||''});
     });
   });
-  let svgHtml = '';
+  let linesHtml = '', labelsHtml = '';
   edges.forEach(e=>{
     const na = wrap.querySelector(`.relNode[data-id="${e.a}"]`);
     const nb = wrap.querySelector(`.relNode[data-id="${e.b}"]`);
@@ -559,16 +561,17 @@ function drawRelEdges(){
     const x1 = ra.left-wrapRect.left+ra.width/2, y1 = ra.top-wrapRect.top+ra.height/2;
     const x2 = rb.left-wrapRect.left+rb.width/2, y2 = rb.top-wrapRect.top+rb.height/2;
     const mx = (x1+x2)/2, my = (y1+y2)/2;
-    svgHtml += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#c9a876" stroke-width="1.5"/>`;
+    linesHtml += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#c9a876" stroke-width="1.5"/>`;
     if(e.text){
       const label = e.text.length>10 ? e.text.slice(0,10)+'…' : e.text;
-      const boxW = Math.max(30, label.length*7+10);
-      svgHtml += `<rect x="${mx-boxW/2}" y="${my-9}" width="${boxW}" height="18" rx="5" fill="#faf9f7" stroke="#e8e6e2"/>`;
-      svgHtml += `<text x="${mx}" y="${my+4}" text-anchor="middle" font-size="10" fill="#8a8781">${escapeXml(label)}</text>`;
+      const boxW = Math.max(34, label.length*7.5+14);
+      labelsHtml += `<rect x="${mx-boxW/2}" y="${my-10}" width="${boxW}" height="20" rx="6" fill="#faf9f7" stroke="#c9a876" stroke-width="1"/>`;
+      labelsHtml += `<text x="${mx}" y="${my+4}" text-anchor="middle" font-size="11" font-weight="600" fill="#2b2a28">${escapeXml(label)}</text>`;
     }
   });
-  svg.innerHTML = svgHtml;
+  svg.innerHTML = linesHtml + labelsHtml;
 }
+
 
 function calcAge(birth){
   if(!birth) return "";
