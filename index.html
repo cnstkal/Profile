@@ -510,7 +510,7 @@ function layoutRelMap(nodes, edges, mainGroupName){
   const otherNodes = nodes.filter(n=>n.group!==mainGroupName);
   const mainCount = Math.max(mainNodes.length, 1);
   const mainR = Math.max(150, mainCount*34);
-  const width = mainR*2 + 520, height = mainR*2 + 520;
+  const width = mainR*2 + 420, height = mainR*2 + 420;
   const cx = width/2, cy = height/2;
 
   mainNodes.forEach((n,i)=>{
@@ -692,55 +692,25 @@ function drawRelEdges(){
   const w = wrap.offsetWidth, h = wrap.offsetHeight;
   svg.setAttribute('width', w); svg.setAttribute('height', h);
   svg.style.width = w+'px'; svg.style.height = h+'px';
-  const cx0 = w/2, cy0 = h/2;
-  let mainR = 0;
-  (canvas._edges||[]).forEach(e=>{
-    [e.na, e.nb].forEach(n=>{ if(n.fixed) mainR = Math.max(mainR, Math.hypot(n.x-cx0, n.y-cy0)); });
-  });
-  const edges = (canvas._edges||[]).map(e=>{
-    const base = {text:e.text, x1:e.na.x, y1:e.na.y, x2:e.nb.x, y2:e.nb.y};
-    if(e.na.fixed && e.nb.fixed && mainR){
-      let a1 = Math.atan2(e.na.y-cy0, e.na.x-cx0), a2 = Math.atan2(e.nb.y-cy0, e.nb.x-cx0);
-      let diff = a2 - a1;
-      while(diff > Math.PI) diff -= Math.PI*2;
-      while(diff < -Math.PI) diff += Math.PI*2;
-      const mid = a1 + diff/2;
-      const gap = Math.abs(diff);
-      const bow = mainR * (0.12 + 0.55*(gap/Math.PI));
-      const r = mainR + bow;
-      base.ctrlX = cx0 + Math.cos(mid)*r;
-      base.ctrlY = cy0 + Math.sin(mid)*r;
-    }
-    return base;
-  });
+  const edges = (canvas._edges||[]).map(e=>({text:e.text, x1:e.na.x, y1:e.na.y, x2:e.nb.x, y2:e.nb.y}));
   const labels = edges.filter(e=>e.text).map(e=>{
     const label = e.text.length>10 ? e.text.slice(0,10)+'…' : e.text;
     const boxW = Math.max(34, label.length*7.5+14);
-    const px = e.ctrlX!==undefined ? 0.25*e.x1+0.5*e.ctrlX+0.25*e.x2 : (e.x1+e.x2)/2;
-    const py = e.ctrlY!==undefined ? 0.25*e.y1+0.5*e.ctrlY+0.25*e.y2 : (e.y1+e.y2)/2;
-    return {cx:px, cy:py, w:boxW, label, x1:e.x1, y1:e.y1, x2:e.x2, y2:e.y2, ctrlX:e.ctrlX, ctrlY:e.ctrlY};
+    return {cx:(e.x1+e.x2)/2, cy:(e.y1+e.y2)/2, w:boxW, label, x1:e.x1, y1:e.y1, x2:e.x2, y2:e.y2};
   });
   resolveLabelOverlaps(labels);
   let linesHtml = '', labelsHtml = '';
   const noLabelEdges = edges.filter(e=>!e.text);
   noLabelEdges.forEach(e=>{
-    if(e.ctrlX!==undefined){
-      linesHtml += `<path d="M${e.x1} ${e.y1} Q ${e.ctrlX} ${e.ctrlY} ${e.x2} ${e.y2}" fill="none" stroke="#c9a876" stroke-width="1.6" opacity="0.6"/>`;
-    } else {
-      linesHtml += `<line x1="${e.x1}" y1="${e.y1}" x2="${e.x2}" y2="${e.y2}" stroke="#c9a876" stroke-width="1.6" opacity="0.6"/>`;
-    }
+    linesHtml += `<line x1="${e.x1}" y1="${e.y1}" x2="${e.x2}" y2="${e.y2}" stroke="#c9a876" stroke-width="1.6" opacity="0.6"/>`;
   });
   labels.forEach(l=>{
-    if(l.ctrlX!==undefined){
-      linesHtml += `<path d="M${l.x1} ${l.y1} Q ${l.ctrlX} ${l.ctrlY} ${l.x2} ${l.y2}" fill="none" stroke="#c9a876" stroke-width="1.6" opacity="0.6"/>`;
+    const midX = (l.x1+l.x2)/2, midY = (l.y1+l.y2)/2;
+    const shift = Math.hypot(l.cx-midX, l.cy-midY);
+    if(shift > 6){
+      linesHtml += `<path d="M${l.x1} ${l.y1} Q ${l.cx} ${l.cy} ${l.x2} ${l.y2}" fill="none" stroke="#c9a876" stroke-width="1.6" opacity="0.6"/>`;
     } else {
-      const midX = (l.x1+l.x2)/2, midY = (l.y1+l.y2)/2;
-      const shift = Math.hypot(l.cx-midX, l.cy-midY);
-      if(shift > 6){
-        linesHtml += `<path d="M${l.x1} ${l.y1} Q ${l.cx} ${l.cy} ${l.x2} ${l.y2}" fill="none" stroke="#c9a876" stroke-width="1.6" opacity="0.6"/>`;
-      } else {
-        linesHtml += `<line x1="${l.x1}" y1="${l.y1}" x2="${l.x2}" y2="${l.y2}" stroke="#c9a876" stroke-width="1.6" opacity="0.6"/>`;
-      }
+      linesHtml += `<line x1="${l.x1}" y1="${l.y1}" x2="${l.x2}" y2="${l.y2}" stroke="#c9a876" stroke-width="1.6" opacity="0.6"/>`;
     }
     labelsHtml += `<rect x="${l.cx-l.w/2}" y="${l.cy-10}" width="${l.w}" height="20" rx="6" fill="#fff" stroke="#c9a876" stroke-width="1.3"/>`;
     labelsHtml += `<text x="${l.cx}" y="${l.cy+4}" text-anchor="middle" font-size="11" font-weight="600" fill="#2b2a28">${escapeXml(l.label)}</text>`;
