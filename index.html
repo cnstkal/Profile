@@ -10,7 +10,9 @@
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Pretendard',sans-serif;-webkit-tap-highlight-color:transparent;}
 html{-webkit-text-size-adjust:100%;overflow-x:hidden;max-width:100%;}
 html,body{-webkit-overflow-scrolling:touch;}
-body{background:var(--bg);color:var(--text);padding-bottom:60px;overflow-x:hidden;max-width:100%;overscroll-behavior-y:none;}
+body{background:var(--bg);color:var(--text);padding-bottom:60px;overflow-x:hidden;max-width:100%;}
+img{content-visibility:auto;}
+.cardItem,.miniCard,.section{contain:content;}
 button,.btn,.catChip,.cardItem,.addTile,.delX{touch-action:manipulation;cursor:pointer;}
 .topbar{position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--border);padding:16px 20px;display:flex;justify-content:space-between;align-items:center;z-index:10;}
 .topbar h1{font-size:18px;font-weight:700;}
@@ -122,6 +124,7 @@ table.info td{padding:10px 12px;font-size:13px;white-space:pre-wrap;line-height:
         <div class="field"><label>국적</label><input id="f_nation"></div>
         <div class="field"><label>출생지</label><input id="f_live"></div>
       </div>
+      <div class="field"><label>소속사</label><input id="f_agency"></div>
       <div class="field"><label>소속</label>
         <div class="selWrap">
           <select id="f_group"></select>
@@ -163,13 +166,11 @@ table.info td{padding:10px 12px;font-size:13px;white-space:pre-wrap;line-height:
         <div class="field"><label>단점</label><textarea id="f_weakness"></textarea></div>
       </div>
       <div class="field"><label>취미</label><textarea id="f_hobby"></textarea></div>
-      <div class="field"><label>사소한 TMI</label><textarea id="f_tmi"></textarea></div>
 
       <div class="formSection">인간관계</div>
       <div id="relList"></div>
       <button class="btn light sm" style="margin-top:8px" onclick="addRelation()">+ 인물 추가</button>
 
-      <div class="field" style="margin-top:14px"><label>능력 / 특기</label><textarea id="f_ability"></textarea></div>
 
       <div class="formSection">기타</div>
       <div class="field"><label>어린 시절 (사진)</label>
@@ -211,8 +212,8 @@ let CATS = JSON.parse(localStorage.getItem('groupCategories')||'["클로우","�
 
 // ---- state (form) ----
 let state = { image:"", outfitPhotos:[], childPhotos:[], bagPhotos:[], education:[], family:[], relations:[] };
-const SIMPLE_FIELDS = ["name","realname","birth","gender","nation","live","position","religion","nick","body","mbti",
-"look","outfit","personality","feature","like","dislike","motto","strength","weakness","hobby","tmi","ability"];
+const SIMPLE_FIELDS = ["name","realname","birth","gender","nation","live","agency","position","religion","nick","body","mbti",
+"look","outfit","personality","feature","like","dislike","motto","strength","weakness","hobby"];
 
 function saveDraft(){
   SIMPLE_FIELDS.forEach(f=>state[f]=document.getElementById('f_'+f).value);
@@ -458,8 +459,7 @@ window.saveProfile = async function(){
   if(editingId){ await updateDoc(doc(db,"idolProfiles",editingId), obj); }
   else{ await addDoc(colRef, obj); }
   localStorage.removeItem('draft'); localStorage.removeItem('draftMeta');
-  document.getElementById('formOverlay').classList.remove('show');
-  loadProfiles();
+  location.reload();
 }
 
 window.deleteProfile = async function(id){
@@ -487,7 +487,7 @@ window.openDetail = function(id){
   if(!p) return;
   const rows = [
     ["본명", p.realname],["생년월일", p.birth ? (p.birth+(calcAge(p.birth)?(" ("+calcAge(p.birth)+")"):"")) : ""],
-    ["성별", p.gender],["국적", p.nation],["출생지", p.live],["신체", p.body],["MBTI", p.mbti],["종교", p.religion]
+    ["성별", p.gender],["국적", p.nation],["출생지", p.live],["소속사", p.agency],["신체", p.body],["MBTI", p.mbti],["종교", p.religion]
   ].filter(r=>r[1]);
 
   function bulletize(text){
@@ -495,7 +495,7 @@ window.openDetail = function(id){
   }
 
   const eduHtml = (p.education&&p.education.length) ? p.education.map(ed=>`<div>• ${ed.school} ${ed.period?('('+ed.period+')'):''}</div>`).join('') : "";
-  const famHtml = (p.family&&p.family.length) ? p.family.map(f=>`<div class="miniCard">${f.photo?`<img src="${f.photo}">`:'<div style="width:44px;height:44px;background:#eee;border-radius:8px"></div>'}<div><div class="mc-name">${f.name||''}</div><div class="mc-sub">${f.relation||''}</div></div></div>`).join('') : "";
+  const famHtml = (p.family&&p.family.length) ? p.family.map(f=>`<div class="miniCard">${f.photo?`<img src="${f.photo}" style="cursor:pointer" onclick="openLightbox('${f.photo}')">`:'<div style="width:44px;height:44px;background:#eee;border-radius:8px"></div>'}<div><div class="mc-name">${f.name||''}</div><div class="mc-sub">${f.relation||''}</div></div></div>`).join('') : "";
   const relHtml = (p.relations&&p.relations.length) ? p.relations.map(r=>{
     const other = profiles.find(o=>o.id===r.id);
     return `<div class="miniCard">${other&&other.image?`<img src="${other.image}">`:'<div style="width:44px;height:44px;background:#eee;border-radius:8px"></div>'}<div><div class="mc-name">${other?other.name:'(삭제된 인물)'}</div><div class="mc-sub">${r.text||''}</div></div></div>`;
@@ -504,13 +504,12 @@ window.openDetail = function(id){
   const sections = [
     ["외모", p.look],
     ["성격/성향", p.personality],["특징", p.feature],["좋아하는 것", p.like],["싫어하는 것", p.dislike],["좌우명", p.motto],
-    ["장점", p.strength],["단점", p.weakness],["취미", p.hobby],["사소한 TMI", p.tmi],
-    ["능력/특기", p.ability]
+    ["장점", p.strength],["단점", p.weakness],["취미", p.hobby]
   ].filter(s=>s[1]);
 
   function photoSection(title, arr){
     if(!arr || !arr.length) return "";
-    return `<div class="section"><h3>${title}</h3><div class="photoRow">${arr.map(u=>`<img src="${u}" onclick="openLightbox('${u}')">`).join('')}</div></div>`;
+    return `<div class="section"><h3>${title}</h3><div class="photoRow">${arr.map(u=>`<img src="${u}" loading="lazy" decoding="async" onclick="openLightbox('${u}')">`).join('')}</div></div>`;
   }
 
   document.getElementById('detailBody').innerHTML = `
@@ -540,16 +539,31 @@ window.loadProfiles = async function(){
   snap.forEach(d=>profiles.push({id:d.id, ...d.data()}));
   renderGrid();
 }
+function birthDate(birth){
+  if(!birth) return null;
+  const d = new Date(birth.replace(/[.\s]+/g,'-').replace(/-+$/,''));
+  return isNaN(d.getTime()) ? null : d;
+}
 function renderGrid(){
   const grid = document.getElementById('grid');
-  const list = activeCat==="전체" ? profiles : profiles.filter(p=>p.group===activeCat);
+  let list = activeCat==="전체" ? [...profiles] : profiles.filter(p=>p.group===activeCat);
+  list.sort((a,b)=>{
+    const ga = CATS.indexOf(a.group||''), gb = CATS.indexOf(b.group||'');
+    const gaIdx = ga===-1?CATS.length:ga, gbIdx = gb===-1?CATS.length:gb;
+    if(gaIdx!==gbIdx) return gaIdx-gbIdx;
+    const da = birthDate(a.birth), db = birthDate(b.birth);
+    if(da && db) return da-db;
+    if(da) return -1;
+    if(db) return 1;
+    return 0;
+  });
   if(list.length===0){
     grid.innerHTML = `<div class="empty" style="grid-column:1/-1;">등록된 프로필이 없습니다.</div>`;
     return;
   }
   grid.innerHTML = list.map(p=>`
     <div class="cardItem" onclick="openDetail('${p.id}')">
-      ${p.image ? `<img src="${p.image}">` : `<div class="ph">No Image</div>`}
+      ${p.image ? `<img src="${p.image}" loading="lazy" decoding="async">` : `<div class="ph">No Image</div>`}
       <div class="info"><div class="name">${p.name}</div><div class="aff">${p.group||''}${p.position?(' · '+p.position):''}</div></div>
     </div>`).join('');
 }
