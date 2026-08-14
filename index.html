@@ -505,57 +505,88 @@ window.openDetailFromRelMap = function(id){
   openDetail(id);
 }
 function escapeXml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function forceLayout(nodes, edges, width, height){
-  if(nodes.length===0) return;
+function layoutRelMap(nodes, edges, mainGroupName){
+  const mainNodes = nodes.filter(n=>n.group===mainGroupName);
+  const otherNodes = nodes.filter(n=>n.group!==mainGroupName);
+  const mainCount = Math.max(mainNodes.length, 1);
+  const mainR = Math.max(150, mainCount*34);
+  const width = mainR*2 + 420, height = mainR*2 + 420;
   const cx = width/2, cy = height/2;
-  nodes.forEach((n,i)=>{
-    const ang = (i/nodes.length)*Math.PI*2;
-    const r = Math.min(width,height)*0.35;
-    n.x = cx + Math.cos(ang)*r + (Math.random()-0.5)*20;
-    n.y = cy + Math.sin(ang)*r + (Math.random()-0.5)*20;
+
+  mainNodes.forEach((n,i)=>{
+    const ang = (i/mainCount)*Math.PI*2 - Math.PI/2;
+    n.angle = ang;
+    n.x = cx + Math.cos(ang)*mainR;
+    n.y = cy + Math.sin(ang)*mainR;
+    n.fixed = true;
   });
-  const k = Math.sqrt((width*height)/Math.max(nodes.length,1)) * 0.9;
-  let temp = width*0.06;
-  const minDist = 92;
-  for(let iter=0; iter<260; iter++){
-    const disp = nodes.map(()=>({x:0,y:0}));
+
+  const adj = {};
+  nodes.forEach(n=>adj[n.id]=[]);
+  edges.forEach(e=>{ adj[e.na.id].push(e.nb.id); adj[e.nb.id].push(e.na.id); });
+
+  otherNodes.forEach((n,i)=>{
+    const links = adj[n.id].map(id=>nodes.find(x=>x.id===id)).filter(Boolean);
+    const mainLinks = links.filter(l=>l.fixed);
+    let ang;
+    if(mainLinks.length){
+      let sx=0, sy=0;
+      mainLinks.forEach(l=>{ sx+=Math.cos(l.angle); sy+=Math.sin(l.angle); });
+      ang = Math.atan2(sy,sx);
+    } else {
+      ang = (i/Math.max(otherNodes.length,1))*Math.PI*2;
+    }
+    const r = mainR + 140;
+    n.x = cx + Math.cos(ang)*r + (Math.random()-0.5)*30;
+    n.y = cy + Math.sin(ang)*r + (Math.random()-0.5)*30;
+    n.fixed = false;
+  });
+
+  const k = 70;
+  const minDist = 90;
+  let temp = 18;
+  for(let iter=0; iter<200; iter++){
+    const disp = {};
+    nodes.forEach(n=>disp[n.id]={x:0,y:0});
     for(let i=0;i<nodes.length;i++){
       for(let j=i+1;j<nodes.length;j++){
-        let dx = nodes[i].x-nodes[j].x, dy = nodes[i].y-nodes[j].y;
+        const a = nodes[i], b = nodes[j];
+        let dx=a.x-b.x, dy=a.y-b.y;
         let dist = Math.sqrt(dx*dx+dy*dy) || 0.01;
-        const eff = dist < minDist ? minDist : dist;
-        const force = (k*k)/eff * (dist<minDist ? 1.8 : 1);
-        const fx = (dx/dist)*force, fy = (dy/dist)*force;
-        disp[i].x += fx; disp[i].y += fy;
-        disp[j].x -= fx; disp[j].y -= fy;
+        const eff = dist<minDist ? minDist : dist;
+        const force = (k*k)/eff * (dist<minDist ? 2 : 1);
+        const fx=(dx/dist)*force, fy=(dy/dist)*force;
+        if(!a.fixed){ disp[a.id].x+=fx; disp[a.id].y+=fy; }
+        if(!b.fixed){ disp[b.id].x-=fx; disp[b.id].y-=fy; }
       }
     }
     edges.forEach(e=>{
-      const a = nodes.indexOf(e.na), b = nodes.indexOf(e.nb);
-      if(a<0||b<0) return;
-      let dx = nodes[a].x-nodes[b].x, dy = nodes[a].y-nodes[b].y;
+      const a=e.na, b=e.nb;
+      let dx=a.x-b.x, dy=a.y-b.y;
       let dist = Math.sqrt(dx*dx+dy*dy) || 0.01;
-      const force = (dist*dist)/k;
-      const fx = (dx/dist)*force, fy = (dy/dist)*force;
-      disp[a].x -= fx; disp[a].y -= fy;
-      disp[b].x += fx; disp[b].y += fy;
+      const force = (dist*dist)/(k*10);
+      const fx=(dx/dist)*force, fy=(dy/dist)*force;
+      if(!a.fixed){ disp[a.id].x-=fx; disp[a.id].y-=fy; }
+      if(!b.fixed){ disp[b.id].x+=fx; disp[b.id].y+=fy; }
     });
-    nodes.forEach((n,i)=>{
-      const dx = disp[i].x, dy = disp[i].y;
+    nodes.forEach(n=>{
+      if(n.fixed) return;
+      const dx=disp[n.id].x, dy=disp[n.id].y;
       const dist = Math.sqrt(dx*dx+dy*dy) || 0.01;
       const lim = Math.min(dist, temp);
       n.x += (dx/dist)*lim;
       n.y += (dy/dist)*lim;
-      n.x = Math.max(60, Math.min(width-60, n.x));
-      n.y = Math.max(60, Math.min(height-60, n.y));
+      n.x = Math.max(50, Math.min(width-50, n.x));
+      n.y = Math.max(50, Math.min(height-50, n.y));
     });
-    temp *= 0.97;
+    temp *= 0.98;
   }
+  return {width, height};
 }
 function renderRelMap(){
   const canvas = document.getElementById('relmapCanvas');
   if(profiles.length===0){ canvas.innerHTML = `<div class="empty">등록된 프로필이 없습니다.</div>`; return; }
-  const nodes = profiles.map(p=>({id:p.id, name:p.name, image:p.image}));
+  const nodes = profiles.map(p=>({id:p.id, name:p.name, image:p.image, group:p.group||''}));
   const seen = new Set(); const edges = [];
   profiles.forEach(p=>{
     (p.relations||[]).forEach(r=>{
@@ -567,9 +598,8 @@ function renderRelMap(){
       if(na && nb) edges.push({na, nb, text:r.text||''});
     });
   });
-  const area = Math.max(560, Math.sqrt(nodes.length)*260);
-  const width = area, height = area*0.85;
-  forceLayout(nodes, edges, width, height);
+  const mainGroupName = CATS.find(c=>nodes.some(n=>n.group===c)) || (nodes[0]&&nodes[0].group) || '';
+  const {width, height} = layoutRelMap(nodes, edges, mainGroupName);
   let html = `<div class="relmapWrap" id="relmapWrap" style="width:${width}px;height:${height}px;"><svg id="relmapSvg"></svg>`;
   nodes.forEach(n=>{
     html += `<div class="relNode" data-id="${n.id}" style="left:${n.x}px;top:${n.y}px;" onclick="openDetailFromRelMap('${n.id}')">
