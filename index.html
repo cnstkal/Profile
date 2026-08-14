@@ -75,6 +75,15 @@ table.info td{padding:10px 12px;font-size:13px;white-space:pre-wrap;line-height:
 .delX{background:#eee;border:none;border-radius:6px;width:28px;height:28px;font-size:14px;cursor:pointer;flex:0 0 auto;}
 .subBox{border:1px solid var(--border);border-radius:10px;padding:10px;margin-top:8px;}
 .ageTag{font-size:12px;color:var(--sub);margin-top:4px;}
+.relmapWrap{position:relative;display:flex;flex-wrap:wrap;align-items:flex-start;gap:12px;}
+.relGroupBox{border:2px solid var(--accent);border-radius:16px;padding:14px;background:rgba(201,168,118,.06);}
+.relGroupTitle{font-weight:800;font-size:13px;color:var(--accent);margin-bottom:8px;}
+.relAgencyBox{border:1px dashed var(--border);border-radius:12px;padding:8px;margin:6px 0;display:flex;flex-wrap:wrap;}
+.relAgencyTitle{width:100%;font-size:11px;color:var(--sub);margin-bottom:6px;}
+.relNode{display:flex;flex-direction:column;align-items:center;width:64px;margin:6px;cursor:pointer;text-align:center;position:relative;z-index:1;}
+.relNode img{width:48px;height:48px;border-radius:50%;object-fit:cover;background:#eee;border:2px solid #fff;box-shadow:0 0 0 1px var(--border);}
+.relNode .relNodeName{font-size:11px;margin-top:4px;font-weight:600;line-height:1.2;}
+#relmapSvg{position:absolute;top:0;left:0;pointer-events:none;z-index:0;}
 .selWrap{display:flex;gap:6px;min-width:0;}
 .selWrap select{flex:1;min-width:0;}
 </style>
@@ -83,7 +92,10 @@ table.info td{padding:10px 12px;font-size:13px;white-space:pre-wrap;line-height:
 
 <div class="topbar">
   <h1>✨ 프로필 아카이브</h1>
-  <button class="btn" onclick="openForm()">+ 추가</button>
+  <div style="display:flex;gap:8px">
+    <button class="btn light" onclick="openRelMap()">🕸️ 관계도</button>
+    <button class="btn" onclick="openForm()">+ 추가</button>
+  </div>
 </div>
 <div id="catBar"></div>
 <div id="grid"></div>
@@ -96,6 +108,15 @@ table.info td{padding:10px 12px;font-size:13px;white-space:pre-wrap;line-height:
 </div>
 
 <div class="lightbox" id="lightbox" onclick="closeLightbox()"><img id="lightboxImg" src=""></div>
+
+<div class="overlay" id="relmapOverlay">
+  <div class="sheet" style="max-width:100%;">
+    <div class="head"><h2>인물관계도</h2><button class="btn light" onclick="closeRelMap()">닫기</button></div>
+    <div class="body" style="padding:16px;overflow:auto;">
+      <div id="relmapCanvas"></div>
+    </div>
+  </div>
+</div>
 
 <div class="overlay" id="formOverlay">
   <div class="sheet">
@@ -471,6 +492,83 @@ window.deleteProfile = async function(id){
 window.closeDetail = function(){ document.getElementById('detailOverlay').classList.remove('show'); }
 window.openLightbox = function(url){ document.getElementById('lightboxImg').src = url; document.getElementById('lightbox').classList.add('show'); }
 window.closeLightbox = function(){ document.getElementById('lightbox').classList.remove('show'); }
+
+window.openRelMap = function(){ document.getElementById('relmapOverlay').classList.add('show'); renderRelMap(); }
+window.closeRelMap = function(){ document.getElementById('relmapOverlay').classList.remove('show'); }
+function escapeXml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function renderRelMap(){
+  const canvas = document.getElementById('relmapCanvas');
+  const groups = {};
+  profiles.forEach(p=>{
+    const g = p.group || '미분류';
+    if(!groups[g]) groups[g]=[];
+    groups[g].push(p);
+  });
+  const groupOrder = [...CATS.filter(c=>groups[c]), ...Object.keys(groups).filter(g=>!CATS.includes(g))];
+  if(groupOrder.length===0){ canvas.innerHTML = `<div class="empty">등록된 프로필이 없습니다.</div>`; return; }
+  let html = '<div class="relmapWrap" id="relmapWrap"><svg id="relmapSvg"></svg>';
+  groupOrder.forEach(g=>{
+    const byAgency = {};
+    groups[g].forEach(p=>{
+      const a = p.agency || '소속사 미상';
+      if(!byAgency[a]) byAgency[a]=[];
+      byAgency[a].push(p);
+    });
+    html += `<div class="relGroupBox"><div class="relGroupTitle">${g}</div>`;
+    Object.keys(byAgency).forEach(a=>{
+      html += `<div class="relAgencyBox"><div class="relAgencyTitle">${a}</div>`;
+      byAgency[a].forEach(p=>{
+        html += `<div class="relNode" data-id="${p.id}" onclick="closeRelMap();openDetail('${p.id}')">
+          ${p.image?`<img src="${p.image}">`:`<div style="width:48px;height:48px;border-radius:50%;background:#eee"></div>`}
+          <div class="relNodeName">${p.name}</div>
+        </div>`;
+      });
+      html += `</div>`;
+    });
+    html += `</div>`;
+  });
+  html += `</div>`;
+  canvas.innerHTML = html;
+  requestAnimationFrame(drawRelEdges);
+}
+function drawRelEdges(){
+  const wrap = document.getElementById('relmapWrap');
+  const svg = document.getElementById('relmapSvg');
+  if(!wrap||!svg) return;
+  const w = wrap.scrollWidth, h = wrap.scrollHeight;
+  svg.setAttribute('width', w); svg.setAttribute('height', h);
+  svg.style.width = w+'px'; svg.style.height = h+'px';
+  const wrapRect = wrap.getBoundingClientRect();
+  const seen = new Set();
+  const edges = [];
+  profiles.forEach(p=>{
+    (p.relations||[]).forEach(r=>{
+      if(!r.id) return;
+      const key = [p.id, r.id].sort().join('|');
+      if(seen.has(key)) return;
+      seen.add(key);
+      edges.push({a:p.id, b:r.id, text:r.text||''});
+    });
+  });
+  let svgHtml = '';
+  edges.forEach(e=>{
+    const na = wrap.querySelector(`.relNode[data-id="${e.a}"]`);
+    const nb = wrap.querySelector(`.relNode[data-id="${e.b}"]`);
+    if(!na||!nb) return;
+    const ra = na.getBoundingClientRect(), rb = nb.getBoundingClientRect();
+    const x1 = ra.left-wrapRect.left+ra.width/2, y1 = ra.top-wrapRect.top+ra.height/2;
+    const x2 = rb.left-wrapRect.left+rb.width/2, y2 = rb.top-wrapRect.top+rb.height/2;
+    const mx = (x1+x2)/2, my = (y1+y2)/2;
+    svgHtml += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#c9a876" stroke-width="1.5"/>`;
+    if(e.text){
+      const label = e.text.length>10 ? e.text.slice(0,10)+'…' : e.text;
+      const boxW = Math.max(30, label.length*7+10);
+      svgHtml += `<rect x="${mx-boxW/2}" y="${my-9}" width="${boxW}" height="18" rx="5" fill="#faf9f7" stroke="#e8e6e2"/>`;
+      svgHtml += `<text x="${mx}" y="${my+4}" text-anchor="middle" font-size="10" fill="#8a8781">${escapeXml(label)}</text>`;
+    }
+  });
+  svg.innerHTML = svgHtml;
+}
 
 function calcAge(birth){
   if(!birth) return "";
