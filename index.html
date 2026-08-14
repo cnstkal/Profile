@@ -591,6 +591,7 @@ function renderRelMap(){
   const canvas = document.getElementById('relmapCanvas');
   if(profiles.length===0){ canvas.innerHTML = `<div class="empty">등록된 프로필이 없습니다.</div>`; return; }
   const nodes = profiles.map((p,i)=>({id:p.id, name:p.name, image:p.image, group:p.group||'', color:nodeColor(i, profiles.length)}));
+  const mainGroupName = CATS.find(c=>nodes.some(n=>n.group===c)) || (nodes[0]&&nodes[0].group) || '';
   const seen = new Set(); const edges = [];
   profiles.forEach(p=>{
     (p.relations||[]).forEach(r=>{
@@ -599,10 +600,15 @@ function renderRelMap(){
       if(seen.has(key)) return;
       seen.add(key);
       const na = nodes.find(n=>n.id===p.id), nb = nodes.find(n=>n.id===r.id);
-      if(na && nb) edges.push({na, nb, text:r.text||'', color:na.color});
+      if(!na || !nb) return;
+      const aMain = na.group===mainGroupName, bMain = nb.group===mainGroupName;
+      let color;
+      if(aMain && !bMain) color = nb.color;
+      else if(!aMain && bMain) color = na.color;
+      else color = na.color;
+      edges.push({na, nb, text:r.text||'', color});
     });
   });
-  const mainGroupName = CATS.find(c=>nodes.some(n=>n.group===c)) || (nodes[0]&&nodes[0].group) || '';
   const {width, height} = layoutRelMap(nodes, edges, mainGroupName);
   let html = `<div class="relmapWrap" id="relmapWrap" style="width:${width}px;height:${height}px;"><svg id="relmapSvg"></svg>`;
   nodes.forEach(n=>{
