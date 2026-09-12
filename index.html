@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
 <title>Arca</title>
 <link rel="icon" href="favicon.png">
 <link rel="apple-touch-icon" href="icon-180.png">
@@ -127,89 +127,25 @@ table.info td{padding:10px 12px;font-size:13px;white-space:pre-wrap;line-height:
 
 <div class="overlay" id="formOverlay">
   <div class="sheet">
-    <div class="head"><h2 id="formTitle">프로필 작성</h2><div style="display:flex;gap:8px"><button class="btn light" onclick="closeForm()">취소</button><button class="btn" onclick="saveProfile()">저장</button></div></div>
+    <div class="head"><h2 id="formTitle">프로필 작성</h2><div style="display:flex;gap:8px"><button class="btn light" onclick="closeForm()">취소</button><button class="btn" id="saveProfileBtn" onclick="saveProfile()">저장</button></div></div>
     <div class="body" id="formBody">
-      <div class="field">
-        <label>사진</label>
-        <div class="uploadBox" id="uploadBox" onclick="document.getElementById('fileInput').click()">사진을 선택하세요</div>
-        <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleMainFile(event)">
-      </div>
-
+      <div class="field"><label>사진</label><div class="uploadBox" id="uploadBox" onclick="document.getElementById('fileInput').click()">사진을 선택하세요</div><input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleMainFile(event)"></div>
       <div class="formSection">기본 정보</div>
       <div class="field"><label>이름</label><input id="f_name" placeholder="영문/한자 가능"></div>
       <div class="field"><label>본명</label><input id="f_realname" placeholder="영문/한자 가능"></div>
-      <div class="row2">
-        <div class="field"><label>생년월일</label><input type="text" id="f_birth" placeholder="예: 2001-05-12" oninput="updateAgeTag()"><div class="ageTag" id="ageTag"></div></div>
-        <div class="field"><label>성별</label>
-          <select id="f_gender">
-            <option value="">선택</option>
-            <option value="남자">남자</option>
-            <option value="여자">여자</option>
-          </select>
-        </div>
-      </div>
-      <div class="row2">
-        <div class="field"><label>국적</label><input id="f_nation"></div>
-        <div class="field"><label>출생지</label><input id="f_live"></div>
-      </div>
+      <div class="row2"><div class="field"><label>생년월일</label><input type="text" id="f_birth" placeholder="예: 2001-05-12" oninput="updateAgeTag()"><div class="ageTag" id="ageTag"></div></div><div class="field"><label>성별</label><select id="f_gender"><option value="">선택</option><option value="남자">남자</option><option value="여자">여자</option></select></div></div>
+      <div class="row2"><div class="field"><label>국적</label><input id="f_nation"></div><div class="field"><label>출생지</label><input id="f_live"></div></div>
       <div class="field"><label>소속사</label><input id="f_agency"></div>
-      <div class="field"><label>소속</label>
-        <div class="selWrap">
-          <select id="f_group"></select>
-          <button class="btn light sm" onclick="addCategory()">+ 카테고리</button>
-        </div>
-      </div>
+      <div class="field"><label>소속</label><div class="selWrap"><select id="f_group"></select><button class="btn light sm" onclick="addCategory()">+ 카테고리</button></div></div>
       <div class="field"><label>포지션</label><input id="f_position" placeholder="예: 보컬, 리더, 센터"></div>
-      <div class="row2">
-        <div class="field"><label>신체 (키/몸무게)</label><input id="f_body" placeholder="예: 173cm, 55kg"></div>
-        <div class="field"><label>MBTI</label><input id="f_mbti"></div>
-      </div>
-      <div class="field"><label>종교</label><input id="f_religion"></div>
-      <div class="field"><label>별명</label><input id="f_nick"></div>
-
-      <div class="formSection">학력</div>
-      <div id="eduList"></div>
-      <button class="btn light sm" style="margin-top:8px" onclick="addEdu()">+ 학력 추가</button>
-
-      <div class="formSection">가족관계</div>
-      <div id="familyList"></div>
-      <button class="btn light sm" style="margin-top:8px" onclick="addFamily()">+ 가족 추가</button>
-
-      <div class="formSection">외형</div>
-      <div class="field"><label>외모</label><textarea id="f_look"></textarea></div>
-      <div class="field"><label>착장 (사진)</label>
-        <div class="photoRow" id="outfitPhotos"></div>
-        <input type="file" id="outfitFile" accept="image/*" style="display:none" onchange="handleArrFile(event,'outfitPhotos')">
-      </div>
-      <div class="field"><label>착장 (설명)</label><textarea id="f_outfit" placeholder="착장 스타일 설명"></textarea></div>
-
-      <div class="formSection">성격 & 특징</div>
-      <div class="field"><label>성격/성향</label><textarea id="f_personality"></textarea></div>
-      <div class="field"><label>특징</label><textarea id="f_feature"></textarea></div>
-      <div class="field"><label>좋아하는 것</label><textarea id="f_like"></textarea></div>
-      <div class="field"><label>싫어하는 것</label><textarea id="f_dislike"></textarea></div>
-      <div class="field"><label>좌우명</label><input id="f_motto"></div>
-      <div class="row2">
-        <div class="field"><label>장점</label><textarea id="f_strength"></textarea></div>
-        <div class="field"><label>단점</label><textarea id="f_weakness"></textarea></div>
-      </div>
-      <div class="field"><label>취미</label><textarea id="f_hobby"></textarea></div>
-
-      <div class="formSection">인간관계</div>
-      <div id="relList"></div>
-      <button class="btn light sm" style="margin-top:8px" onclick="addRelation()">+ 인물 추가</button>
-
-
-      <div class="formSection">기타</div>
-      <div class="field"><label>어린 시절 (사진)</label>
-        <div class="photoRow" id="childPhotos"></div>
-        <input type="file" id="childFile" accept="image/*" style="display:none" onchange="handleArrFile(event,'childPhotos')">
-      </div>
-      <div class="field"><label>왓츠인마이백 (사진)</label>
-        <div class="photoRow" id="bagPhotos"></div>
-        <input type="file" id="bagFile" accept="image/*" style="display:none" onchange="handleArrFile(event,'bagPhotos')">
-      </div>
-
+      <div class="row2"><div class="field"><label>신체 (키/몸무게)</label><input id="f_body" placeholder="예: 173cm, 55kg"></div><div class="field"><label>MBTI</label><input id="f_mbti"></div></div>
+      <div class="field"><label>종교</label><input id="f_religion"></div><div class="field"><label>별명</label><input id="f_nick"></div>
+      <div class="formSection">학력</div><div id="eduList"></div><button class="btn light sm" style="margin-top:8px" onclick="addEdu()">+ 학력 추가</button>
+      <div class="formSection">가족관계</div><div id="familyList"></div><button class="btn light sm" style="margin-top:8px" onclick="addFamily()">+ 가족 추가</button>
+      <div class="formSection">외형</div><div class="field"><label>외모</label><textarea id="f_look"></textarea></div><div class="field"><label>착장 (사진)</label><div class="photoRow" id="outfitPhotos"></div><input type="file" id="outfitFile" accept="image/*" style="display:none" onchange="handleArrFile(event,'outfitPhotos')"></div><div class="field"><label>착장 (설명)</label><textarea id="f_outfit" placeholder="착장 스타일 설명"></textarea></div>
+      <div class="formSection">성격 & 특징</div><div class="field"><label>성격/성향</label><textarea id="f_personality"></textarea></div><div class="field"><label>특징</label><textarea id="f_feature"></textarea></div><div class="field"><label>좋아하는 것</label><textarea id="f_like"></textarea></div><div class="field"><label>싫어하는 것</label><textarea id="f_dislike"></textarea></div><div class="field"><label>좌우명</label><input id="f_motto"></div><div class="row2"><div class="field"><label>장점</label><textarea id="f_strength"></textarea></div><div class="field"><label>단점</label><textarea id="f_weakness"></textarea></div></div><div class="field"><label>취미</label><textarea id="f_hobby"></textarea></div>
+      <div class="formSection">인간관계</div><div id="relList"></div><button class="btn light sm" style="margin-top:8px" onclick="addRelation()">+ 인물 추가</button>
+      <div class="formSection">기타</div><div class="field"><label>어린 시절 (사진)</label><div class="photoRow" id="childPhotos"></div><input type="file" id="childFile" accept="image/*" style="display:none" onchange="handleArrFile(event,'childPhotos')"></div><div class="field"><label>왓츠인마이백 (사진)</label><div class="photoRow" id="bagPhotos"></div><input type="file" id="bagFile" accept="image/*" style="display:none" onchange="handleArrFile(event,'bagPhotos')"></div>
     </div>
   </div>
 </div>
@@ -218,639 +154,62 @@ table.info td{padding:10px 12px;font-size:13px;white-space:pre-wrap;line-height:
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDt6kg-c0Zqjfna2xuryNhUoS87EZn9dP0",
-  authDomain: "fanfic-228b7.firebaseapp.com",
-  projectId: "fanfic-228b7",
-  storageBucket: "fanfic-228b7.firebasestorage.app",
-  messagingSenderId: "261204619222",
-  appId: "1:261204619222:web:50f74e12ee4b86c8fafe77"
-};
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const colRef = collection(db, "idolProfiles");
-
-const CLOUDINARY_CLOUD = 'dbljkloal';
-const CLOUDINARY_PRESET = 'Everything';
-
-let profiles = [];
-let editingId = null;
-let activeCat = "전체";
-let CATS = JSON.parse(localStorage.getItem('groupCategories')||'["클로우","에이븐","키논","큥파레"]');
-
-// ---- state (form) ----
-let state = { image:"", outfitPhotos:[], childPhotos:[], bagPhotos:[], education:[], family:[], relations:[] };
-const SIMPLE_FIELDS = ["name","realname","birth","gender","nation","live","agency","position","religion","nick","body","mbti",
-"look","outfit","personality","feature","like","dislike","motto","strength","weakness","hobby"];
-
-function saveDraft(){
-  SIMPLE_FIELDS.forEach(f=>state[f]=document.getElementById('f_'+f).value);
-  state.group = document.getElementById('f_group').value;
-  localStorage.setItem('draft', JSON.stringify(state));
-  localStorage.setItem('draftMeta', JSON.stringify({open:true, editingId}));
-}
-document.getElementById('formBody').addEventListener('input', saveDraft);
-document.getElementById('formBody').addEventListener('change', saveDraft);
-
-function renderCatOptions(){
-  const sel = document.getElementById('f_group');
-  sel.innerHTML = CATS.map(c=>`<option value="${c}">${c}</option>`).join('');
-}
-window.addCategory = function(){
-  const name = prompt("새 카테고리 이름");
-  if(!name) return;
-  if(!CATS.includes(name)) CATS.push(name);
-  localStorage.setItem('groupCategories', JSON.stringify(CATS));
-  renderCatOptions();
-  document.getElementById('f_group').value = name;
-  renderCatBar();
-  saveDraft();
-}
-
-function renderCatBar(){
-  const bar = document.getElementById('catBar');
-  const all = ["전체", ...CATS];
-  bar.innerHTML = all.map(c=>`<div class="catChip ${c===activeCat?'active':''}" onclick="setCat('${c}')">${c}</div>`).join('');
-}
-window.setCat = function(c){ activeCat = c; renderCatBar(); renderGrid(); }
-
-window.updateAgeTag = function(){
-  const v = document.getElementById('f_birth').value;
-  const tag = document.getElementById('ageTag');
-  const age = calcAge(v);
-  tag.innerText = age || "";
-}
-
-// ---- photo arrays ----
-async function uploadToCloudinary(file){
-  const fd = new FormData();
-  fd.append('file', file);
-  fd.append('upload_preset', CLOUDINARY_PRESET);
-  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, {method:'POST', body:fd});
-  const data = await res.json();
-  return data.secure_url;
-}
-window.handleMainFile = async function(e){
-  const file = e.target.files[0]; if(!file) return;
-  document.getElementById('uploadBox').innerText = "업로드 중...";
-  state.image = await uploadToCloudinary(file);
-  document.getElementById('uploadBox').innerHTML = `<img src="${state.image}">`;
-  saveDraft();
-}
-window.handleArrFile = async function(e, key){
-  const file = e.target.files[0]; if(!file) return;
-  const url = await uploadToCloudinary(file);
-  state[key].push(url);
-  renderPhotoRow(key);
-  saveDraft();
-  e.target.value = "";
-}
-function renderPhotoRow(key){
-  const box = document.getElementById(key);
-  const inputMap = {outfitPhotos:'outfitFile', childPhotos:'childFile', bagPhotos:'bagFile'};
-  box.innerHTML = state[key].map((u,i)=>`<div style="position:relative"><img src="${u}"><button class="delX" style="position:absolute;top:-6px;right:-6px" onclick="removePhoto('${key}',${i})">×</button></div>`).join('')
-    + `<div class="addTile" onclick="document.getElementById('${inputMap[key]}').click()">+</div>`;
-}
-window.removePhoto = function(key, i){ state[key].splice(i,1); renderPhotoRow(key); saveDraft(); }
-
-// ---- education (draft: only committed on 저장) ----
-window.eduDraft = null;
-window.addEdu = function(){ window.eduDraft = {index:-1, data:{school:"", period:""}}; renderEdu(); }
-window.editEdu = function(i){ window.eduDraft = {index:i, data:Object.assign({},state.education[i])}; renderEdu(); }
-window.cancelEdu = function(){ window.eduDraft = null; renderEdu(); }
-window.saveEdu = function(){
-  if(!window.eduDraft) return;
-  if(window.eduDraft.index===-1) state.education.push(window.eduDraft.data);
-  else state.education[window.eduDraft.index] = window.eduDraft.data;
-  window.eduDraft = null; renderEdu(); saveDraft();
-}
-window.removeEdu = function(i){ state.education.splice(i,1); renderEdu(); saveDraft(); }
-function renderEdu(){
-  const box = document.getElementById('eduList');
-  let html = state.education.map((ed,i)=>`
-    <div class="subBox">
-      <div>· ${ed.school} ${ed.period?('('+ed.period+')'):''}</div>
-      <div class="rowLine">
-        <button class="btn light sm" onclick="editEdu(${i})">수정</button>
-        <button class="btn light sm" onclick="removeEdu(${i})">삭제</button>
-      </div>
-    </div>`).join('');
-  if(window.eduDraft){
-    const ed = window.eduDraft.data;
-    html += `
-    <div class="subBox">
-      <div class="rowLine">
-        <input placeholder="학교명" value="${ed.school}" oninput="window.eduDraft.data.school=this.value">
-        <input placeholder="기간(예:전학)" value="${ed.period}" oninput="window.eduDraft.data.period=this.value">
-      </div>
-      <div class="rowLine">
-        <button class="btn sm" onclick="saveEdu()">저장</button>
-        <button class="btn light sm" onclick="cancelEdu()">취소</button>
-      </div>
-    </div>`;
-  }
-  box.innerHTML = html;
-}
-
-// ---- family (draft: only committed on 저장) ----
-window.famDraft = null;
-window.addFamily = function(){ window.famDraft = {index:-1, data:{relation:"", name:"", photo:""}}; renderFamily(); }
-window.editFamily = function(i){ window.famDraft = {index:i, data:Object.assign({},state.family[i])}; renderFamily(); }
-window.cancelFamily = function(){ window.famDraft = null; renderFamily(); }
-window.saveFamily = function(){
-  if(!window.famDraft) return;
-  if(window.famDraft.index===-1) state.family.push(window.famDraft.data);
-  else state.family[window.famDraft.index] = window.famDraft.data;
-  window.famDraft = null; renderFamily(); saveDraft();
-}
-window.removeFamily = function(i){ state.family.splice(i,1); renderFamily(); saveDraft(); }
-window.familyFileUpload = async function(e){
-  const file = e.target.files[0]; if(!file || !window.famDraft) return;
-  window.famDraft.data.photo = await uploadToCloudinary(file);
-  renderFamily();
-}
-function renderFamily(){
-  const box = document.getElementById('familyList');
-  let html = state.family.map((f,i)=>`
-    <div class="miniCard">
-      ${f.photo?`<img src="${f.photo}">`:'<div style="width:44px;height:44px;background:#eee;border-radius:8px"></div>'}
-      <div style="flex:1"><div class="mc-name">${f.name||''}</div><div class="mc-sub">${f.relation||''}</div></div>
-      <button class="btn light sm" onclick="editFamily(${i})">수정</button>
-      <button class="btn light sm" onclick="removeFamily(${i})">삭제</button>
-    </div>`).join('');
-  if(window.famDraft){
-    const f = window.famDraft.data;
-    html += `
-    <div class="subBox">
-      <div class="rowLine">
-        <input placeholder="관계(예:엄마)" value="${f.relation}" oninput="window.famDraft.data.relation=this.value">
-        <input placeholder="이름" value="${f.name}" oninput="window.famDraft.data.name=this.value">
-      </div>
-      <div class="photoRow" style="margin-top:6px">
-        ${f.photo ? `<img src="${f.photo}" style="width:60px;height:60px;object-fit:cover;border-radius:8px">` : ''}
-        <div class="addTile" style="width:60px;height:60px" onclick="this.nextElementSibling.click()">+</div>
-        <input type="file" accept="image/*" style="display:none" onchange="familyFileUpload(event)">
-      </div>
-      <div class="rowLine">
-        <button class="btn sm" onclick="saveFamily()">저장</button>
-        <button class="btn light sm" onclick="cancelFamily()">취소</button>
-      </div>
-    </div>`;
-  }
-  box.innerHTML = html;
-}
-
-// ---- relations (draft: only committed on 저장) ----
-window.relDraft = null;
-window.addRelation = function(){ window.relDraft = {index:-1, data:{id:"", text:""}}; renderRelations(); }
-window.editRelation = function(i){ window.relDraft = {index:i, data:Object.assign({},state.relations[i])}; renderRelations(); }
-window.cancelRelation = function(){ window.relDraft = null; renderRelations(); }
-window.saveRelation = function(){
-  if(!window.relDraft) return;
-  if(window.relDraft.index===-1) state.relations.push(window.relDraft.data);
-  else state.relations[window.relDraft.index] = window.relDraft.data;
-  window.relDraft = null; renderRelations(); saveDraft();
-}
-window.removeRelation = function(i){ state.relations.splice(i,1); renderRelations(); saveDraft(); }
-function renderRelations(){
-  const box = document.getElementById('relList');
-  const others = profiles.filter(p=>p.id!==editingId);
-  let html = state.relations.map((r,i)=>{
-    const other = others.find(o=>o.id===r.id);
-    return `<div class="miniCard">
-      ${other&&other.image?`<img src="${other.image}">`:'<div style="width:44px;height:44px;background:#eee;border-radius:8px"></div>'}
-      <div style="flex:1"><div class="mc-name">${other?other.name:'(미선택)'}</div><div class="mc-sub">${r.text||''}</div></div>
-      <button class="btn light sm" onclick="editRelation(${i})">수정</button>
-      <button class="btn light sm" onclick="removeRelation(${i})">삭제</button>
-    </div>`;
-  }).join('');
-  if(window.relDraft){
-    const r = window.relDraft.data;
-    html += `
-    <div class="subBox">
-      <div class="rowLine">
-        <select onchange="window.relDraft.data.id=this.value">
-          <option value="">-- 인물 선택 --</option>
-          ${others.map(o=>`<option value="${o.id}" ${r.id===o.id?'selected':''}>${o.name}</option>`).join('')}
-        </select>
-      </div>
-      <textarea placeholder="관계 설명" oninput="window.relDraft.data.text=this.value">${r.text}</textarea>
-      <div class="rowLine">
-        <button class="btn sm" onclick="saveRelation()">저장</button>
-        <button class="btn light sm" onclick="cancelRelation()">취소</button>
-      </div>
-    </div>`;
-  }
-  box.innerHTML = html;
-}
-
-// ---- form open/close ----
-window.openForm = function(id){
-  editingId = id || null;
-  window.eduDraft = null; window.famDraft = null; window.relDraft = null;
-  state = { image:"", outfitPhotos:[], childPhotos:[], bagPhotos:[], education:[], family:[], relations:[] };
-  SIMPLE_FIELDS.forEach(f=>document.getElementById('f_'+f).value = "");
-  document.getElementById('uploadBox').innerHTML = "사진을 선택하세요";
-  document.getElementById('formTitle').innerText = id ? "프로필 수정" : "프로필 작성";
-  if(id){
-    const p = profiles.find(x=>x.id===id);
-    if(p){
-      SIMPLE_FIELDS.forEach(f=>document.getElementById('f_'+f).value = p[f]||"");
-      document.getElementById('f_group').value = p.group || CATS[0];
-      state.image = p.image||"";
-      state.outfitPhotos = p.outfitPhotos||[];
-      state.childPhotos = p.childPhotos||[];
-      state.bagPhotos = p.bagPhotos||[];
-      state.education = p.education||[];
-      state.family = p.family||[];
-      state.relations = p.relations||[];
-      if(state.image) document.getElementById('uploadBox').innerHTML = `<img src="${state.image}">`;
-      updateAgeTag();
-    }
-  }
-  renderPhotoRow('outfitPhotos'); renderPhotoRow('childPhotos'); renderPhotoRow('bagPhotos');
-  renderEdu(); renderFamily(); renderRelations();
-  document.getElementById('formOverlay').classList.add('show');
-  saveDraft();
-}
-window.closeForm = function(){
-  document.getElementById('formOverlay').classList.remove('show');
-  localStorage.removeItem('draft'); localStorage.removeItem('draftMeta');
-}
-
-window.saveProfile = async function(){
-  const obj = { image: state.image, outfitPhotos: state.outfitPhotos, childPhotos: state.childPhotos,
-    bagPhotos: state.bagPhotos, education: state.education, family: state.family, relations: state.relations,
-    group: document.getElementById('f_group').value };
-  SIMPLE_FIELDS.forEach(f=>obj[f]=document.getElementById('f_'+f).value);
-  if(!obj.name){ alert("이름을 입력해주세요"); return; }
-  if(editingId){ await updateDoc(doc(db,"idolProfiles",editingId), obj); }
-  else{ await addDoc(colRef, obj); }
-  localStorage.removeItem('draft'); localStorage.removeItem('draftMeta');
-  location.reload();
-}
-
-window.deleteProfile = async function(id){
-  if(!confirm("삭제하시겠습니까?")) return;
-  await deleteDoc(doc(db,"idolProfiles",id));
-  closeDetail();
-  loadProfiles();
-}
-window.closeDetail = function(){
-  document.getElementById('detailOverlay').classList.remove('show');
-  if(cameFromRelMap){ cameFromRelMap = false; document.getElementById('relmapOverlay').classList.add('show'); }
-}
-window.openLightbox = function(url){ document.getElementById('lightboxImg').src = url; document.getElementById('lightbox').classList.add('show'); }
-window.closeLightbox = function(){ document.getElementById('lightbox').classList.remove('show'); }
-
-window.openRelMap = function(){ document.getElementById('relmapOverlay').classList.add('show'); renderRelMap(); }
-window.closeRelMap = function(){ document.getElementById('relmapOverlay').classList.remove('show'); }
-let cameFromRelMap = false;
-window.openDetailFromRelMap = function(id){
-  cameFromRelMap = true;
-  document.getElementById('relmapOverlay').classList.remove('show');
-  openDetail(id);
-}
-function escapeXml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function layoutRelMap(nodes, edges, mainGroupName){
-  const mainNodes = nodes.filter(n=>n.group===mainGroupName);
-  const otherNodes = nodes.filter(n=>n.group!==mainGroupName);
-  const mainCount = Math.max(mainNodes.length, 1);
-  const mainR = Math.max(150, mainCount*34);
-  const width = mainR*2 + 420, height = mainR*2 + 420;
-  const cx = width/2, cy = height/2;
-
-  mainNodes.forEach((n,i)=>{
-    const ang = (i/mainCount)*Math.PI*2 - Math.PI/2;
-    n.angle = ang;
-    n.x = cx + Math.cos(ang)*mainR;
-    n.y = cy + Math.sin(ang)*mainR;
-    n.fixed = true;
-  });
-
-  const adj = {};
-  nodes.forEach(n=>adj[n.id]=[]);
-  edges.forEach(e=>{ adj[e.na.id].push(e.nb.id); adj[e.nb.id].push(e.na.id); });
-
-  otherNodes.forEach((n,i)=>{
-    const links = adj[n.id].map(id=>nodes.find(x=>x.id===id)).filter(Boolean);
-    const mainLinks = links.filter(l=>l.fixed);
-    let ang;
-    if(mainLinks.length){
-      let sx=0, sy=0;
-      mainLinks.forEach(l=>{ sx+=Math.cos(l.angle); sy+=Math.sin(l.angle); });
-      ang = Math.atan2(sy,sx);
-    } else {
-      ang = (i/Math.max(otherNodes.length,1))*Math.PI*2;
-    }
-    const r = mainR + 140;
-    n.x = cx + Math.cos(ang)*r + (Math.random()-0.5)*30;
-    n.y = cy + Math.sin(ang)*r + (Math.random()-0.5)*30;
-    n.fixed = false;
-  });
-
-  const k = 70;
-  const minDist = 90;
-  let temp = 18;
-  for(let iter=0; iter<200; iter++){
-    const disp = {};
-    nodes.forEach(n=>disp[n.id]={x:0,y:0});
-    for(let i=0;i<nodes.length;i++){
-      for(let j=i+1;j<nodes.length;j++){
-        const a = nodes[i], b = nodes[j];
-        let dx=a.x-b.x, dy=a.y-b.y;
-        let dist = Math.sqrt(dx*dx+dy*dy) || 0.01;
-        const eff = dist<minDist ? minDist : dist;
-        const force = (k*k)/eff * (dist<minDist ? 2 : 1);
-        const fx=(dx/dist)*force, fy=(dy/dist)*force;
-        if(!a.fixed){ disp[a.id].x+=fx; disp[a.id].y+=fy; }
-        if(!b.fixed){ disp[b.id].x-=fx; disp[b.id].y-=fy; }
-      }
-    }
-    edges.forEach(e=>{
-      const a=e.na, b=e.nb;
-      let dx=a.x-b.x, dy=a.y-b.y;
-      let dist = Math.sqrt(dx*dx+dy*dy) || 0.01;
-      const force = (dist*dist)/(k*10);
-      const fx=(dx/dist)*force, fy=(dy/dist)*force;
-      if(!a.fixed){ disp[a.id].x-=fx; disp[a.id].y-=fy; }
-      if(!b.fixed){ disp[b.id].x+=fx; disp[b.id].y+=fy; }
-    });
-    nodes.forEach(n=>{
-      if(n.fixed) return;
-      const dx=disp[n.id].x, dy=disp[n.id].y;
-      const dist = Math.sqrt(dx*dx+dy*dy) || 0.01;
-      const lim = Math.min(dist, temp);
-      n.x += (dx/dist)*lim;
-      n.y += (dy/dist)*lim;
-      n.x = Math.max(50, Math.min(width-50, n.x));
-      n.y = Math.max(50, Math.min(height-50, n.y));
-    });
-    temp *= 0.98;
-  }
-  return {width, height};
-}
-function nodeColor(idx, total){
-  const hue = Math.round((idx * (360/Math.max(total,1))) % 360);
-  return `hsl(${hue}, 62%, 48%)`;
-}
-function renderRelMap(){
-  const canvas = document.getElementById('relmapCanvas');
-  if(profiles.length===0){ canvas.innerHTML = `<div class="empty">등록된 프로필이 없습니다.</div>`; return; }
-  const nodes = profiles.map((p,i)=>({id:p.id, name:p.name, image:p.image, group:p.group||'', color:nodeColor(i, profiles.length)}));
-  const mainGroupName = CATS.find(c=>nodes.some(n=>n.group===c)) || (nodes[0]&&nodes[0].group) || '';
-  const seen = new Set(); const edges = [];
-  profiles.forEach(p=>{
-    (p.relations||[]).forEach(r=>{
-      if(!r.id) return;
-      const key = [p.id, r.id].sort().join('|');
-      if(seen.has(key)) return;
-      seen.add(key);
-      const na = nodes.find(n=>n.id===p.id), nb = nodes.find(n=>n.id===r.id);
-      if(!na || !nb) return;
-      const aMain = na.group===mainGroupName, bMain = nb.group===mainGroupName;
-      let color;
-      if(aMain && !bMain) color = nb.color;
-      else if(!aMain && bMain) color = na.color;
-      else color = na.color;
-      edges.push({na, nb, text:r.text||'', color});
-    });
-  });
-  const {width, height} = layoutRelMap(nodes, edges, mainGroupName);
-  let html = `<div class="relmapWrap" id="relmapWrap" style="width:${width}px;height:${height}px;"><svg id="relmapSvg"></svg>`;
-  nodes.forEach(n=>{
-    html += `<div class="relNode" data-id="${n.id}" style="left:${n.x}px;top:${n.y}px;" onclick="openDetailFromRelMap('${n.id}')">
-      ${n.image?`<img src="${n.image}">`:`<div style="width:58px;height:58px;border-radius:50%;background:#eee"></div>`}
-      <div class="relNodeName">${n.name}</div>
-    </div>`;
-  });
-  html += `</div>`;
-  canvas.innerHTML = html;
-  canvas._edges = edges;
-  requestAnimationFrame(()=>{ drawRelEdges(); initRelMapZoom(); });
-}
-let relZoomState = null;
-function initRelMapZoom(){
-  const canvas = document.getElementById('relmapCanvas');
-  const wrap = document.getElementById('relmapWrap');
-  if(!canvas||!wrap) return;
-  let scale = Math.min(1, canvas.clientWidth / wrap.offsetWidth);
-  let tx = (canvas.clientWidth - wrap.offsetWidth*scale)/2;
-  let ty = (canvas.clientHeight - wrap.offsetHeight*scale)/2;
-  const apply = ()=>{ wrap.style.transform = `translate(${tx}px,${ty}px) scale(${scale})`; };
-  apply();
-  let pts = {};
-  let startDist = 0, startScale = 1, startMid = {x:0,y:0}, panStart = null;
-  function getMid(a,b){ return {x:(a.x+b.x)/2, y:(a.y+b.y)/2}; }
-  canvas.onpointerdown = (e)=>{
-    canvas.setPointerCapture(e.pointerId);
-    pts[e.pointerId] = {x:e.clientX, y:e.clientY};
-    const ids = Object.keys(pts);
-    if(ids.length===1){ panStart = {x:e.clientX-tx, y:e.clientY-ty}; }
-    else if(ids.length===2){
-      const a = pts[ids[0]], b = pts[ids[1]];
-      startDist = Math.hypot(a.x-b.x, a.y-b.y);
-      startScale = scale;
-      startMid = getMid(a,b);
-      panStart = null;
-    }
-  };
-  canvas.onpointermove = (e)=>{
-    if(!pts[e.pointerId]) return;
-    pts[e.pointerId] = {x:e.clientX, y:e.clientY};
-    const ids = Object.keys(pts);
-    if(ids.length===2){
-      const a = pts[ids[0]], b = pts[ids[1]];
-      const dist = Math.hypot(a.x-b.x, a.y-b.y);
-      scale = Math.max(0.3, Math.min(2.5, startScale * (dist/startDist)));
-      apply();
-    } else if(ids.length===1 && panStart){
-      tx = e.clientX - panStart.x;
-      ty = e.clientY - panStart.y;
-      apply();
-    }
-  };
-  function endPt(e){ delete pts[e.pointerId]; if(Object.keys(pts).length<2) panStart = {x:tx, y:ty}; if(Object.keys(pts).length===1){ const id=Object.keys(pts)[0]; panStart = {x:pts[id].x-tx, y:pts[id].y-ty}; } }
-  canvas.onpointerup = endPt;
-  canvas.onpointercancel = endPt;
-  canvas.onpointerleave = endPt;
-}
-function resolveLabelOverlaps(labels){
-  const pad = 4;
-  for(let iter=0; iter<120; iter++){
-    let moved = false;
-    for(let i=0;i<labels.length;i++){
-      for(let j=i+1;j<labels.length;j++){
-        const a = labels[i], b = labels[j];
-        const ax1=a.cx-a.w/2-pad, ax2=a.cx+a.w/2+pad, ay1=a.cy-12-pad, ay2=a.cy+12+pad;
-        const bx1=b.cx-b.w/2-pad, bx2=b.cx+b.w/2+pad, by1=b.cy-12-pad, by2=b.cy+12+pad;
-        if(ax1<bx2 && ax2>bx1 && ay1<by2 && ay2>by1){
-          const overlapX = Math.min(ax2,bx2)-Math.max(ax1,bx1);
-          const overlapY = Math.min(ay2,by2)-Math.max(ay1,by1);
-          moved = true;
-          if(overlapX < overlapY){
-            const shift = overlapX/2 + 0.5;
-            if(a.cx < b.cx){ a.cx -= shift; b.cx += shift; } else { a.cx += shift; b.cx -= shift; }
-          } else {
-            const shift = overlapY/2 + 0.5;
-            if(a.cy < b.cy){ a.cy -= shift; b.cy += shift; } else { a.cy += shift; b.cy -= shift; }
-          }
-        }
-      }
-    }
-    if(!moved) break;
-  }
-}
-function drawRelEdges(){
-  const wrap = document.getElementById('relmapWrap');
-  const svg = document.getElementById('relmapSvg');
-  const canvas = document.getElementById('relmapCanvas');
-  if(!wrap||!svg||!canvas) return;
-  const w = wrap.offsetWidth, h = wrap.offsetHeight;
-  svg.setAttribute('width', w); svg.setAttribute('height', h);
-  svg.style.width = w+'px'; svg.style.height = h+'px';
-  const edges = (canvas._edges||[]).map(e=>({text:e.text, x1:e.na.x, y1:e.na.y, x2:e.nb.x, y2:e.nb.y, color:e.color}));
-  const labels = edges.filter(e=>e.text).map(e=>{
-    const label = e.text.length>10 ? e.text.slice(0,10)+'…' : e.text;
-    const boxW = Math.max(34, label.length*7.5+14);
-    return {cx:(e.x1+e.x2)/2, cy:(e.y1+e.y2)/2, w:boxW, label, x1:e.x1, y1:e.y1, x2:e.x2, y2:e.y2, color:e.color};
-  });
-  resolveLabelOverlaps(labels);
-  let linesHtml = '', labelsHtml = '';
-  const noLabelEdges = edges.filter(e=>!e.text);
-  noLabelEdges.forEach(e=>{
-    linesHtml += `<line x1="${e.x1}" y1="${e.y1}" x2="${e.x2}" y2="${e.y2}" stroke="${e.color}" stroke-width="1.8" opacity="0.65"/>`;
-  });
-  labels.forEach(l=>{
-    const midX = (l.x1+l.x2)/2, midY = (l.y1+l.y2)/2;
-    const shift = Math.hypot(l.cx-midX, l.cy-midY);
-    if(shift > 6){
-      linesHtml += `<path d="M${l.x1} ${l.y1} Q ${l.cx} ${l.cy} ${l.x2} ${l.y2}" fill="none" stroke="${l.color}" stroke-width="1.8" opacity="0.65"/>`;
-    } else {
-      linesHtml += `<line x1="${l.x1}" y1="${l.y1}" x2="${l.x2}" y2="${l.y2}" stroke="${l.color}" stroke-width="1.8" opacity="0.65"/>`;
-    }
-    labelsHtml += `<rect x="${l.cx-l.w/2}" y="${l.cy-10}" width="${l.w}" height="20" rx="6" fill="#fff" stroke="${l.color}" stroke-width="1.3"/>`;
-    labelsHtml += `<text x="${l.cx}" y="${l.cy+4}" text-anchor="middle" font-size="11" font-weight="600" fill="#2b2a28">${escapeXml(l.label)}</text>`;
-  });
-  svg.innerHTML = linesHtml + labelsHtml;
-}
-
-
-function calcAge(birth){
-  if(!birth) return "";
-  const b = new Date(birth.replace(/[.\s]+/g,'-').replace(/-+$/,'')); const t = new Date();
-  if(isNaN(b.getTime())) return "";
-  let age = t.getFullYear() - b.getFullYear();
-  const m = t.getMonth() - b.getMonth();
-  if(m < 0 || (m===0 && t.getDate() < b.getDate())) age--;
-  return "만 "+age+"세";
-}
-
-window.openDetail = function(id){
-  const p = profiles.find(x=>x.id===id);
-  if(!p) return;
-  const rows = [
-    ["본명", p.realname],["생년월일", p.birth ? (p.birth+(calcAge(p.birth)?(" ("+calcAge(p.birth)+")"):"")) : ""],
-    ["성별", p.gender],["국적", p.nation],["출생지", p.live],["소속사", p.agency],["신체", p.body],["MBTI", p.mbti],["종교", p.religion]
-  ].filter(r=>r[1]);
-
-  function bulletize(text){
-    return text.split(/\n+/).map(l=>l.trim()).filter(Boolean).map(l=>`<div>• ${l}</div>`).join('');
-  }
-
-  const eduHtml = (p.education&&p.education.length) ? p.education.map(ed=>`<div>• ${ed.school} ${ed.period?('('+ed.period+')'):''}</div>`).join('') : "";
-  const famHtml = (p.family&&p.family.length) ? p.family.map(f=>`<div class="miniCard">${f.photo?`<img src="${f.photo}" style="cursor:pointer" onclick="openLightbox('${f.photo}')">`:'<div style="width:44px;height:44px;background:#eee;border-radius:8px"></div>'}<div><div class="mc-name">${f.name||''}</div><div class="mc-sub">${f.relation||''}</div></div></div>`).join('') : "";
-  const relHtml = (p.relations&&p.relations.length) ? p.relations.map(r=>{
-    const other = profiles.find(o=>o.id===r.id);
-    return `<div class="miniCard">${other&&other.image?`<img src="${other.image}">`:'<div style="width:44px;height:44px;background:#eee;border-radius:8px"></div>'}<div><div class="mc-name">${other?other.name:'(삭제된 인물)'}</div><div class="mc-sub">${r.text||''}</div></div></div>`;
-  }).join('') : "";
-
-  const sections = [
-    ["외모", p.look],
-    ["성격/성향", p.personality],["특징", p.feature],["좋아하는 것", p.like],["싫어하는 것", p.dislike],["좌우명", p.motto],
-    ["장점", p.strength],["단점", p.weakness],["취미", p.hobby]
-  ].filter(s=>s[1]);
-
-  function photoSection(title, arr){
-    if(!arr || !arr.length) return "";
-    return `<div class="section"><h3>${title}</h3><div class="photoRow">${arr.map(u=>`<img src="${u}" loading="lazy" decoding="async" onclick="openLightbox('${u}')">`).join('')}</div></div>`;
-  }
-
-  document.getElementById('detailBody').innerHTML = `
-    ${p.image ? `<img class="heroImg" src="${p.image}" onclick="openLightbox('${p.image}')">` : ''}
-    <div class="dName">${p.name}</div>
-    <div class="dSub">${p.group||''} ${p.position?(' · '+p.position):''}</div>
-    ${rows.length?`<table class="info">${rows.map(r=>`<tr><th>${r[0]}</th><td>${r[1]}</td></tr>`).join('')}</table>`:''}
-    ${eduHtml?`<div class="section"><h3>학력</h3><p>${eduHtml}</p></div>`:''}
-    ${famHtml?`<div class="section"><h3>가족관계</h3>${famHtml}</div>`:''}
-    ${photoSection('착장', p.outfitPhotos)}
-    ${p.outfit?`<div class="section"><h3>착장 (설명)</h3><p>${bulletize(p.outfit)}</p></div>`:''}
-    ${sections.map(s=>`<div class="section"><h3>${s[0]}</h3><p>${bulletize(s[1])}</p></div>`).join('')}
-    ${relHtml?`<div class="section"><h3>인간관계</h3>${relHtml}</div>`:''}
-    ${photoSection('어린 시절', p.childhoodPhotos||p.childPhotos)}
-    ${photoSection('왓츠인마이백', p.bagPhotos)}
-    <div class="detailActions">
-      <button class="btn" onclick="openForm('${id}')">수정</button>
-      <button class="btn light" onclick="deleteProfile('${id}')">삭제</button>
-    </div>
-  `;
-  document.getElementById('detailOverlay').classList.add('show');
-}
-
-window.loadProfiles = async function(){
-  const snap = await getDocs(colRef);
-  profiles = [];
-  snap.forEach(d=>profiles.push({id:d.id, ...d.data()}));
-  renderGrid();
-}
-function birthDate(birth){
-  if(!birth) return null;
-  const d = new Date(birth.replace(/[.\s]+/g,'-').replace(/-+$/,''));
-  return isNaN(d.getTime()) ? null : d;
-}
-function renderGrid(){
-  const grid = document.getElementById('grid');
-  let list = activeCat==="전체" ? [...profiles] : profiles.filter(p=>p.group===activeCat);
-  list.sort((a,b)=>{
-    const ga = CATS.indexOf(a.group||''), gb = CATS.indexOf(b.group||'');
-    const gaIdx = ga===-1?CATS.length:ga, gbIdx = gb===-1?CATS.length:gb;
-    if(gaIdx!==gbIdx) return gaIdx-gbIdx;
-    const da = birthDate(a.birth), db = birthDate(b.birth);
-    if(da && db) return da-db;
-    if(da) return -1;
-    if(db) return 1;
-    return 0;
-  });
-  if(list.length===0){
-    grid.innerHTML = `<div class="empty" style="grid-column:1/-1;">등록된 프로필이 없습니다.</div>`;
-    return;
-  }
-  grid.innerHTML = list.map(p=>`
-    <div class="cardItem" onclick="openDetail('${p.id}')">
-      ${p.image ? `<img src="${p.image}" loading="lazy" decoding="async">` : `<div class="ph">No Image</div>`}
-      <div class="info"><div class="name">${p.name}</div><div class="aff">${p.group||''}${p.position?(' · '+p.position):''}</div></div>
-    </div>`).join('');
-}
-
-// init
-renderCatOptions();
-renderCatBar();
-loadProfiles().then(()=>{
-  const meta = JSON.parse(localStorage.getItem('draftMeta')||'null');
-  if(meta && meta.open){
-    const draft = JSON.parse(localStorage.getItem('draft')||'null');
-    openForm(meta.editingId);
-    if(draft){
-      state = Object.assign(state, draft);
-      SIMPLE_FIELDS.forEach(f=>{ if(draft[f]!==undefined) document.getElementById('f_'+f).value = draft[f]; });
-      if(draft.group) document.getElementById('f_group').value = draft.group;
-      if(state.image) document.getElementById('uploadBox').innerHTML = `<img src="${state.image}">`;
-      renderPhotoRow('outfitPhotos'); renderPhotoRow('childPhotos'); renderPhotoRow('bagPhotos');
-      renderEdu(); renderFamily(); renderRelations();
-      updateAgeTag();
-    }
-  }
-});
+const firebaseConfig={apiKey:"AIzaSyDt6kg-c0Zqjfna2xuryNhUoS87EZn9dP0",authDomain:"fanfic-228b7.firebaseapp.com",projectId:"fanfic-228b7",storageBucket:"fanfic-228b7.firebasestorage.app",messagingSenderId:"261204619222",appId:"1:261204619222:web:50f74e12ee4b86c8fafe77"};
+let db=null,colRef=null;
+try{const app=initializeApp(firebaseConfig);db=getFirestore(app);colRef=collection(db,"idolProfiles");}catch(err){console.error("Firebase 초기화 실패",err);}
+const CLOUDINARY_CLOUD='dbljkloal',CLOUDINARY_PRESET='Everything';
+let profiles=[],editingId=null,activeCat="전체";
+const defaultCats=["클로우","에이븐","키논","큥파레"];
+let CATS=safeJson(localStorage.getItem('groupCategories'),defaultCats);
+if(!Array.isArray(CATS)||!CATS.length) CATS=[...defaultCats];
+let state={image:"",outfitPhotos:[],childPhotos:[],bagPhotos:[],education:[],family:[],relations:[]};
+const SIMPLE_FIELDS=["name","realname","birth","gender","nation","live","agency","position","religion","nick","body","mbti","look","outfit","personality","feature","like","dislike","motto","strength","weakness","hobby"];
+function safeJson(raw,fallback){if(!raw)return fallback;try{return JSON.parse(raw)}catch{return fallback}}
+function esc(s){return String(s??"").replace(/[&<>'"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':'&quot;'}[m]))}
+function safeArray(v){return Array.isArray(v)?v:[]}
+function asText(v){return v==null?"":String(v)}
+function draftMeta(){return safeJson(localStorage.getItem('draftMeta'),null)}
+function saveDraft(){SIMPLE_FIELDS.forEach(f=>{const el=document.getElementById('f_'+f);if(el)state[f]=el.value});const g=document.getElementById('f_group');if(g)state.group=g.value;try{localStorage.setItem('draft',JSON.stringify(state));localStorage.setItem('draftMeta',JSON.stringify({open:true,editingId}))}catch(e){console.warn('draft 저장 실패',e)}}
+document.getElementById('formBody').addEventListener('input',saveDraft);document.getElementById('formBody').addEventListener('change',saveDraft);
+function renderCatOptions(selected){const sel=document.getElementById('f_group');if(!sel)return;sel.innerHTML=CATS.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');if(selected!=null&&CATS.includes(selected))sel.value=selected}
+window.addCategory=function(){const raw=prompt("새 카테고리 이름");const name=raw?.trim();if(!name)return;if(!CATS.includes(name))CATS.push(name);try{localStorage.setItem('groupCategories',JSON.stringify(CATS))}catch{}renderCatOptions(name);renderCatBar();saveDraft()}
+function renderCatBar(){const bar=document.getElementById('catBar');const all=["전체",...CATS];bar.innerHTML=all.map(c=>`<button type="button" class="catChip ${c===activeCat?'active':''}" data-cat="${esc(c)}">${esc(c)}</button>`).join('')}
+document.getElementById('catBar').addEventListener('click',e=>{const b=e.target.closest('[data-cat]');if(!b)return;activeCat=b.dataset.cat;renderCatBar();renderGrid()});
+window.updateAgeTag=function(){const v=document.getElementById('f_birth').value;document.getElementById('ageTag').innerText=calcAge(v)};
+async function uploadToCloudinary(file){if(!file||!file.type?.startsWith('image/'))throw new Error('이미지 파일만 업로드할 수 있어요.');if(file.size>10*1024*1024)throw new Error('이미지는 10MB 이하만 업로드할 수 있어요.');const fd=new FormData();fd.append('file',file);fd.append('upload_preset',CLOUDINARY_PRESET);const ctl=new AbortController();const timer=setTimeout(()=>ctl.abort(),20000);try{const res=await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`,{method:'POST',body:fd,signal:ctl.signal});const data=await res.json().catch(()=>({}));if(!res.ok||!data.secure_url)throw new Error(data.error?.message||'이미지 업로드에 실패했어요.');return data.secure_url}finally{clearTimeout(timer)}}
+function uploadErrorMessage(e){return e?.name==='AbortError'?'업로드 시간이 초과됐어요.':(e?.message||'업로드에 실패했어요.')}
+window.handleMainFile=async function(e){const file=e.target.files?.[0];if(!file)return;const box=document.getElementById('uploadBox');box.textContent='업로드 중...';try{state.image=await uploadToCloudinary(file);box.innerHTML=`<img src="${esc(state.image)}">`;saveDraft()}catch(err){box.textContent='사진을 선택하세요';alert(uploadErrorMessage(err))}finally{e.target.value=""}}
+window.handleArrFile=async function(e,key){const file=e.target.files?.[0];if(!file)return;try{const url=await uploadToCloudinary(file);if(!Array.isArray(state[key]))state[key]=[];state[key].push(url);renderPhotoRow(key);saveDraft()}catch(err){alert(uploadErrorMessage(err))}finally{e.target.value=""}}
+function renderPhotoRow(key){const box=document.getElementById(key);if(!box)return;const inputMap={outfitPhotos:'outfitFile',childPhotos:'childFile',bagPhotos:'bagFile'};box.innerHTML=state[key].map((u,i)=>`<div style="position:relative"><img src="${esc(u)}" loading="lazy" decoding="async"><button type="button" class="delX" style="position:absolute;top:-6px;right:-6px" onclick="removePhoto('${esc(key)}',${i})">×</button></div>`).join('')+`<div class="addTile" onclick="document.getElementById('${inputMap[key]}').click()">+</div>`}
+window.removePhoto=function(key,i){if(!Array.isArray(state[key]))return;state[key].splice(i,1);renderPhotoRow(key);saveDraft()}
+window.eduDraft=null;window.addEdu=function(){window.eduDraft={index:-1,data:{school:"",period:""}};renderEdu()};window.editEdu=function(i){if(!state.education[i])return;window.eduDraft={index:i,data:{...state.education[i]}};renderEdu()};window.cancelEdu=function(){window.eduDraft=null;renderEdu()};window.saveEdu=function(){if(!window.eduDraft)return;const d=window.eduDraft.data||{};if(window.eduDraft.index===-1)state.education.push({school:asText(d.school).trim(),period:asText(d.period).trim()});else state.education[window.eduDraft.index]={school:asText(d.school).trim(),period:asText(d.period).trim()};window.eduDraft=null;renderEdu();saveDraft()};window.removeEdu=function(i){if(i<0||i>=state.education.length)return;state.education.splice(i,1);renderEdu();saveDraft()};
+function renderEdu(){const box=document.getElementById('eduList');let html=state.education.map((ed,i)=>`<div class="subBox"><div>· ${esc(ed.school)} ${ed.period?`(${esc(ed.period)})`:''}</div><div class="rowLine"><button class="btn light sm" type="button" onclick="editEdu(${i})">수정</button><button class="btn light sm" type="button" onclick="removeEdu(${i})">삭제</button></div></div>`).join('');if(window.eduDraft){const ed=window.eduDraft.data||{};html+=`<div class="subBox"><div class="rowLine"><input placeholder="학교명" value="${esc(ed.school)}" oninput="window.eduDraft.data.school=this.value"><input placeholder="기간(예:전학)" value="${esc(ed.period)}" oninput="window.eduDraft.data.period=this.value"></div><div class="rowLine"><button class="btn sm" type="button" onclick="saveEdu()">저장</button><button class="btn light sm" type="button" onclick="cancelEdu()">취소</button></div></div>`}box.innerHTML=html}
+window.famDraft=null;window.addFamily=function(){window.famDraft={index:-1,data:{relation:"",name:"",photo:""}};renderFamily()};window.editFamily=function(i){if(!state.family[i])return;window.famDraft={index:i,data:{...state.family[i]}};renderFamily()};window.cancelFamily=function(){window.famDraft=null;renderFamily()};window.saveFamily=function(){if(!window.famDraft)return;const d=window.famDraft.data||{};const item={relation:asText(d.relation).trim(),name:asText(d.name).trim(),photo:asText(d.photo)};if(window.famDraft.index===-1)state.family.push(item);else state.family[window.famDraft.index]=item;window.famDraft=null;renderFamily();saveDraft()};window.removeFamily=function(i){if(i<0||i>=state.family.length)return;state.family.splice(i,1);renderFamily();saveDraft()};window.familyFileUpload=async function(e){const file=e.target.files?.[0];if(!file||!window.famDraft)return;try{window.famDraft.data.photo=await uploadToCloudinary(file);renderFamily();saveDraft()}catch(err){alert(uploadErrorMessage(err))}finally{e.target.value=""}};
+function renderFamily(){const box=document.getElementById('familyList');let html=state.family.map((f,i)=>`<div class="miniCard">${f.photo?`<img src="${esc(f.photo)}" loading="lazy">`:'<div style="width:44px;height:44px;background:#eee;border-radius:8px"></div>'}<div style="flex:1"><div class="mc-name">${esc(f.name)}</div><div class="mc-sub">${esc(f.relation)}</div></div><button class="btn light sm" type="button" onclick="editFamily(${i})">수정</button><button class="btn light sm" type="button" onclick="removeFamily(${i})">삭제</button></div>`).join('');if(window.famDraft){const f=window.famDraft.data||{};html+=`<div class="subBox"><div class="rowLine"><input placeholder="관계(예:엄마)" value="${esc(f.relation)}" oninput="window.famDraft.data.relation=this.value"><input placeholder="이름" value="${esc(f.name)}" oninput="window.famDraft.data.name=this.value"></div><div class="photoRow" style="margin-top:6px">${f.photo?`<img src="${esc(f.photo)}" style="width:60px;height:60px;object-fit:cover;border-radius:8px">`:''}<div class="addTile" style="width:60px;height:60px" onclick="this.nextElementSibling.click()">+</div><input type="file" accept="image/*" style="display:none" onchange="familyFileUpload(event)"></div><div class="rowLine"><button class="btn sm" type="button" onclick="saveFamily()">저장</button><button class="btn light sm" type="button" onclick="cancelFamily()">취소</button></div></div>`}box.innerHTML=html}
+window.relDraft=null;window.addRelation=function(){window.relDraft={index:-1,data:{id:"",text:""}};renderRelations()};window.editRelation=function(i){if(!state.relations[i])return;window.relDraft={index:i,data:{...state.relations[i]}};renderRelations()};window.cancelRelation=function(){window.relDraft=null;renderRelations()};window.saveRelation=function(){if(!window.relDraft)return;const d=window.relDraft.data||{};if(!d.id)return alert('인물을 선택해주세요.');const item={id:asText(d.id),text:asText(d.text).trim()};if(window.relDraft.index===-1)state.relations.push(item);else state.relations[window.relDraft.index]=item;window.relDraft=null;renderRelations();saveDraft()};window.removeRelation=function(i){if(i<0||i>=state.relations.length)return;state.relations.splice(i,1);renderRelations();saveDraft()};
+function renderRelations(){const box=document.getElementById('relList'),others=profiles.filter(p=>p.id!==editingId);let html=state.relations.map((r,i)=>{const other=others.find(o=>o.id===r.id);return `<div class="miniCard">${other&&other.image?`<img src="${esc(other.image)}" loading="lazy">`:'<div style="width:44px;height:44px;background:#eee;border-radius:8px"></div>'}<div style="flex:1"><div class="mc-name">${esc(other?.name||'(미선택)')}</div><div class="mc-sub">${esc(r.text)}</div></div><button class="btn light sm" type="button" onclick="editRelation(${i})">수정</button><button class="btn light sm" type="button" onclick="removeRelation(${i})">삭제</button></div>`}).join('');if(window.relDraft){const r=window.relDraft.data||{};html+=`<div class="subBox"><div class="rowLine"><select onchange="window.relDraft.data.id=this.value"><option value="">-- 인물 선택 --</option>${others.map(o=>`<option value="${esc(o.id)}" ${r.id===o.id?'selected':''}>${esc(o.name)}</option>`).join('')}</select></div><textarea placeholder="관계 설명" oninput="window.relDraft.data.text=this.value">${esc(r.text)}</textarea><div class="rowLine"><button class="btn sm" type="button" onclick="saveRelation()">저장</button><button class="btn light sm" type="button" onclick="cancelRelation()">취소</button></div></div>`}box.innerHTML=html}
+window.openForm=function(id){editingId=id||null;window.eduDraft=null;window.famDraft=null;window.relDraft=null;state={image:"",outfitPhotos:[],childPhotos:[],bagPhotos:[],education:[],family:[],relations:[]};SIMPLE_FIELDS.forEach(f=>{const el=document.getElementById('f_'+f);if(el)el.value=""});renderCatOptions(CATS[0]);document.getElementById('uploadBox').textContent='사진을 선택하세요';document.getElementById('formTitle').innerText=id?'프로필 수정':'프로필 작성';if(id){const p=profiles.find(x=>x.id===id);if(p){SIMPLE_FIELDS.forEach(f=>document.getElementById('f_'+f).value=asText(p[f]));renderCatOptions(p.group||CATS[0]);state.image=asText(p.image);state.outfitPhotos=safeArray(p.outfitPhotos);state.childPhotos=safeArray(p.childPhotos||p.childhoodPhotos);state.bagPhotos=safeArray(p.bagPhotos);state.education=safeArray(p.education);state.family=safeArray(p.family);state.relations=safeArray(p.relations);if(state.image)document.getElementById('uploadBox').innerHTML=`<img src="${esc(state.image)}">`;updateAgeTag()}}renderPhotoRow('outfitPhotos');renderPhotoRow('childPhotos');renderPhotoRow('bagPhotos');renderEdu();renderFamily();renderRelations();document.getElementById('formOverlay').classList.add('show');saveDraft()}
+window.closeForm=function(){document.getElementById('formOverlay').classList.remove('show');localStorage.removeItem('draft');localStorage.removeItem('draftMeta');}
+let savingProfile=false;
+window.saveProfile=async function(){if(savingProfile)return;const btn=document.getElementById('saveProfileBtn');const obj={image:state.image,outfitPhotos:safeArray(state.outfitPhotos),childPhotos:safeArray(state.childPhotos),bagPhotos:safeArray(state.bagPhotos),education:safeArray(state.education),family:safeArray(state.family),relations:safeArray(state.relations),group:document.getElementById('f_group').value};SIMPLE_FIELDS.forEach(f=>obj[f]=document.getElementById('f_'+f).value.trim());if(!obj.name)return alert('이름을 입력해주세요');if(!db||!colRef)return alert('데이터베이스 연결에 실패했어요. 잠시 후 다시 시도해주세요.');savingProfile=true;btn.disabled=true;btn.textContent='저장 중...';try{if(editingId)await updateDoc(doc(db,'idolProfiles',editingId),obj);else await addDoc(colRef,obj);localStorage.removeItem('draft');localStorage.removeItem('draftMeta');document.getElementById('formOverlay').classList.remove('show');await loadProfiles()}catch(err){console.error(err);alert('저장하지 못했어요.\n'+(err?.message||''))}finally{savingProfile=false;btn.disabled=false;btn.textContent='저장'}}
+window.deleteProfile=async function(id){if(!confirm('삭제하시겠습니까?'))return;if(!db)return alert('데이터베이스에 연결되지 않았어요.');try{await deleteDoc(doc(db,'idolProfiles',id));closeDetail();await loadProfiles()}catch(err){console.error(err);alert('삭제하지 못했어요.\n'+(err?.message||''))}}
+window.closeDetail=function(){document.getElementById('detailOverlay').classList.remove('show');if(cameFromRelMap){cameFromRelMap=false;document.getElementById('relmapOverlay').classList.add('show')}};
+window.openLightbox=function(url){if(!url)return;document.getElementById('lightboxImg').src=url;document.getElementById('lightbox').classList.add('show')};window.closeLightbox=function(){document.getElementById('lightbox').classList.remove('show');document.getElementById('lightboxImg').src=''};
+window.openRelMap=function(){document.getElementById('relmapOverlay').classList.add('show');renderRelMap()};window.closeRelMap=function(){document.getElementById('relmapOverlay').classList.remove('show')};let cameFromRelMap=false;window.openDetailFromRelMap=function(id){cameFromRelMap=true;document.getElementById('relmapOverlay').classList.remove('show');openDetail(id)};
+function escapeXml(s){return esc(s)}
+function layoutRelMap(nodes,edges,mainGroupName){const mainNodes=nodes.filter(n=>n.group===mainGroupName),otherNodes=nodes.filter(n=>n.group!==mainGroupName),mainCount=Math.max(mainNodes.length,1),mainR=Math.max(150,mainCount*34),width=mainR*2+420,height=mainR*2+420,cx=width/2,cy=height/2;mainNodes.forEach((n,i)=>{const ang=(i/mainCount)*Math.PI*2-Math.PI/2;n.angle=ang;n.x=cx+Math.cos(ang)*mainR;n.y=cy+Math.sin(ang)*mainR;n.fixed=true});const adj={};nodes.forEach(n=>adj[n.id]=[]);edges.forEach(e=>{adj[e.na.id]?.push(e.nb.id);adj[e.nb.id]?.push(e.na.id)});otherNodes.forEach((n,i)=>{const links=adj[n.id].map(id=>nodes.find(x=>x.id===id)).filter(Boolean),mainLinks=links.filter(l=>l.fixed);let ang;if(mainLinks.length){let sx=0,sy=0;mainLinks.forEach(l=>{sx+=Math.cos(l.angle);sy+=Math.sin(l.angle)});ang=Math.atan2(sy,sx)}else ang=(i/Math.max(otherNodes.length,1))*Math.PI*2;const r=mainR+140;n.x=cx+Math.cos(ang)*r+(Math.random()-.5)*30;n.y=cy+Math.sin(ang)*r+(Math.random()-.5)*30;n.fixed=false});const k=70,minDist=90;let temp=18;for(let iter=0;iter<120;iter++){const disp={};nodes.forEach(n=>disp[n.id]={x:0,y:0});for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){const a=nodes[i],b=nodes[j];let dx=a.x-b.x,dy=a.y-b.y,dist=Math.sqrt(dx*dx+dy*dy)||.01,eff=dist<minDist?minDist:dist,force=k*k/eff*(dist<minDist?2:1),fx=dx/dist*force,fy=dy/dist*force;if(!a.fixed){disp[a.id].x+=fx;disp[a.id].y+=fy}if(!b.fixed){disp[b.id].x-=fx;disp[b.id].y-=fy}}edges.forEach(e=>{const a=e.na,b=e.nb;let dx=a.x-b.x,dy=a.y-b.y,dist=Math.sqrt(dx*dx+dy*dy)||.01,force=dist*dist/(k*10),fx=dx/dist*force,fy=dy/dist*force;if(!a.fixed){disp[a.id].x-=fx;disp[a.id].y-=fy}if(!b.fixed){disp[b.id].x+=fx;disp[b.id].y+=fy}});nodes.forEach(n=>{if(n.fixed)return;const dx=disp[n.id].x,dy=disp[n.id].y,dist=Math.sqrt(dx*dx+dy*dy)||.01,lim=Math.min(dist,temp);n.x+=(dx/dist)*lim;n.y+=(dy/dist)*lim;n.x=Math.max(50,Math.min(width-50,n.x));n.y=Math.max(50,Math.min(height-50,n.y))});temp*=.98}return{width,height}}
+function nodeColor(idx,total){const hue=Math.round(idx*(360/Math.max(total,1))%360);return `hsl(${hue},62%,48%)`}
+function renderRelMap(){const canvas=document.getElementById('relmapCanvas');if(!profiles.length){canvas.innerHTML='<div class="empty">등록된 프로필이 없습니다.</div>';return}const nodes=profiles.map((p,i)=>({id:p.id,name:asText(p.name),image:asText(p.image),group:asText(p.group),color:nodeColor(i,profiles.length)}));const mainGroupName=CATS.find(c=>nodes.some(n=>n.group===c))||(nodes[0]?.group)||'';const seen=new Set(),edges=[];profiles.forEach(p=>safeArray(p.relations).forEach(r=>{if(!r?.id)return;const key=[p.id,r.id].sort().join('|');if(seen.has(key))return;seen.add(key);const na=nodes.find(n=>n.id===p.id),nb=nodes.find(n=>n.id===r.id);if(!na||!nb)return;const aMain=na.group===mainGroupName,bMain=nb.group===mainGroupName;const color=aMain&&!bMain?nb.color:(!aMain&&bMain?na.color:na.color);edges.push({na,nb,text:asText(r.text),color})}));const{width,height}=layoutRelMap(nodes,edges,mainGroupName);let html=`<div class="relmapWrap" id="relmapWrap" style="width:${width}px;height:${height}px;"><svg id="relmapSvg"></svg>`;nodes.forEach(n=>{html+=`<div class="relNode" data-id="${esc(n.id)}" style="left:${n.x}px;top:${n.y}px;" onclick="openDetailFromRelMap('${esc(n.id)}')">${n.image?`<img src="${esc(n.image)}" loading="lazy">`:'<div style="width:58px;height:58px;border-radius:50%;background:#eee"></div>'}<div class="relNodeName">${esc(n.name)}</div></div>`});html+='</div>';canvas.innerHTML=html;canvas._edges=edges;requestAnimationFrame(()=>{drawRelEdges();initRelMapZoom()})}
+function initRelMapZoom(){const canvas=document.getElementById('relmapCanvas'),wrap=document.getElementById('relmapWrap');if(!canvas||!wrap)return;let scale=Math.min(1,canvas.clientWidth/wrap.offsetWidth),tx=(canvas.clientWidth-wrap.offsetWidth*scale)/2,ty=(canvas.clientHeight-wrap.offsetHeight*scale)/2;const apply=()=>{wrap.style.transform=`translate(${tx}px,${ty}px) scale(${scale})`};apply();let pts={},startDist=0,startScale=1,panStart=null;canvas.onpointerdown=e=>{canvas.setPointerCapture(e.pointerId);pts[e.pointerId]={x:e.clientX,y:e.clientY};const ids=Object.keys(pts);if(ids.length===1)panStart={x:e.clientX-tx,y:e.clientY-ty};else{const a=pts[ids[0]],b=pts[ids[1]];startDist=Math.hypot(a.x-b.x,a.y-b.y)||1;startScale=scale;panStart=null}};canvas.onpointermove=e=>{if(!pts[e.pointerId])return;pts[e.pointerId]={x:e.clientX,y:e.clientY};const ids=Object.keys(pts);if(ids.length===2){const a=pts[ids[0]],b=pts[ids[1]],dist=Math.hypot(a.x-b.x,a.y-b.y);scale=Math.max(.3,Math.min(2.5,startScale*(dist/startDist)));apply()}else if(ids.length===1&&panStart){tx=e.clientX-panStart.x;ty=e.clientY-panStart.y;apply()}};const end=e=>{delete pts[e.pointerId];if(Object.keys(pts).length===1){const id=Object.keys(pts)[0];panStart={x:pts[id].x-tx,y:pts[id].y-ty}}};canvas.onpointerup=end;canvas.onpointercancel=end}
+function resolveLabelOverlaps(labels){const pad=4;for(let iter=0;iter<80;iter++){let moved=false;for(let i=0;i<labels.length;i++)for(let j=i+1;j<labels.length;j++){const a=labels[i],b=labels[j],ax1=a.cx-a.w/2-pad,ax2=a.cx+a.w/2+pad,ay1=a.cy-12-pad,ay2=a.cy+12+pad,bx1=b.cx-b.w/2-pad,bx2=b.cx+b.w/2+pad,by1=b.cy-12-pad,by2=b.cy+12+pad;if(ax1<bx2&&ax2>bx1&&ay1<by2&&ay2>by1){const overlapX=Math.min(ax2,bx2)-Math.max(ax1,bx1),overlapY=Math.min(ay2,by2)-Math.max(ay1,by1);moved=true;if(overlapX<overlapY){const shift=overlapX/2+.5;if(a.cx<b.cx){a.cx-=shift;b.cx+=shift}else{a.cx+=shift;b.cx-=shift}}else{const shift=overlapY/2+.5;if(a.cy<b.cy){a.cy-=shift;b.cy+=shift}else{a.cy+=shift;b.cy-=shift}}}}if(!moved)break}}
+function drawRelEdges(){const wrap=document.getElementById('relmapWrap'),svg=document.getElementById('relmapSvg'),canvas=document.getElementById('relmapCanvas');if(!wrap||!svg||!canvas)return;const w=wrap.offsetWidth,h=wrap.offsetHeight;svg.setAttribute('width',w);svg.setAttribute('height',h);svg.style.width=w+'px';svg.style.height=h+'px';const edges=(canvas._edges||[]).map(e=>({text:e.text,x1:e.na.x,y1:e.na.y,x2:e.nb.x,y2:e.nb.y,color:e.color}));const labels=edges.filter(e=>e.text).map(e=>{const label=e.text.length>10?e.text.slice(0,10)+'…':e.text,boxW=Math.max(34,label.length*7.5+14);return{cx:(e.x1+e.x2)/2,cy:(e.y1+e.y2)/2,w:boxW,label,x1:e.x1,y1:e.y1,x2:e.x2,y2:e.y2,color:e.color}});resolveLabelOverlaps(labels);let linesHtml='',labelsHtml='';edges.filter(e=>!e.text).forEach(e=>linesHtml+=`<line x1="${e.x1}" y1="${e.y1}" x2="${e.x2}" y2="${e.y2}" stroke="${e.color}" stroke-width="1.8" opacity=".65"/>`);labels.forEach(l=>{const midX=(l.x1+l.x2)/2,midY=(l.y1+l.y2)/2,shift=Math.hypot(l.cx-midX,l.cy-midY);linesHtml+=shift>6?`<path d="M${l.x1} ${l.y1} Q ${l.cx} ${l.cy} ${l.x2} ${l.y2}" fill="none" stroke="${l.color}" stroke-width="1.8" opacity=".65"/>`:`<line x1="${l.x1}" y1="${l.y1}" x2="${l.x2}" y2="${l.y2}" stroke="${l.color}" stroke-width="1.8" opacity=".65"/>`;labelsHtml+=`<rect x="${l.cx-l.w/2}" y="${l.cy-10}" width="${l.w}" height="20" rx="6" fill="#fff" stroke="${l.color}" stroke-width="1.3"/><text x="${l.cx}" y="${l.cy+4}" text-anchor="middle" font-size="11" font-weight="600" fill="#2b2a28">${escapeXml(l.label)}</text>`});svg.innerHTML=linesHtml+labelsHtml}
+function calcAge(birth){if(!birth)return'';const b=new Date(String(birth).replace(/[.\s]+/g,'-').replace(/-+$/,'')),t=new Date();if(isNaN(b.getTime()))return'';let age=t.getFullYear()-b.getFullYear(),m=t.getMonth()-b.getMonth();if(m<0||(m===0&&t.getDate()<b.getDate()))age--;return age>=0?`만 ${age}세`:''}
+window.openDetail=function(id){const p=profiles.find(x=>x.id===id);if(!p)return;const rows=[["본명",p.realname],["생년월일",p.birth?(p.birth+(calcAge(p.birth)?` (${calcAge(p.birth)})`:'')):''],["성별",p.gender],["국적",p.nation],["출생지",p.live],["소속사",p.agency],["신체",p.body],["MBTI",p.mbti],["종교",p.religion]].filter(r=>r[1]);const bulletize=text=>asText(text).split(/\n+/).map(l=>l.trim()).filter(Boolean).map(l=>`<div>• ${esc(l)}</div>`).join('');const eduHtml=safeArray(p.education).map(ed=>`<div>• ${esc(ed.school)} ${ed.period?`(${esc(ed.period)})`:''}</div>`).join('');const famHtml=safeArray(p.family).map(f=>`<div class="miniCard">${f.photo?`<img src="${esc(f.photo)}" loading="lazy" style="cursor:pointer" onclick="openLightbox('${esc(f.photo)}')">`:'<div style="width:44px;height:44px;background:#eee;border-radius:8px"></div>'}<div><div class="mc-name">${esc(f.name)}</div><div class="mc-sub">${esc(f.relation)}</div></div></div>`).join('');const relHtml=safeArray(p.relations).map(r=>{const other=profiles.find(o=>o.id===r.id);return `<div class="miniCard">${other?.image?`<img src="${esc(other.image)}" loading="lazy">`:'<div style="width:44px;height:44px;background:#eee;border-radius:8px"></div>'}<div><div class="mc-name">${esc(other?.name||'(삭제된 인물)')}</div><div class="mc-sub">${esc(r.text)}</div></div></div>`}).join('');const sections=[["외모",p.look],["성격/성향",p.personality],["특징",p.feature],["좋아하는 것",p.like],["싫어하는 것",p.dislike],["좌우명",p.motto],["장점",p.strength],["단점",p.weakness],["취미",p.hobby]].filter(s=>s[1]);const photoSection=(title,arr)=>{arr=safeArray(arr);return arr.length?`<div class="section"><h3>${title}</h3><div class="photoRow">${arr.map(u=>`<img src="${esc(u)}" loading="lazy" decoding="async" onclick="openLightbox('${esc(u)}')">`).join('')}</div></div>`:''};document.getElementById('detailBody').innerHTML=`${p.image?`<img class="heroImg" src="${esc(p.image)}" loading="eager" onclick="openLightbox('${esc(p.image)}')">`:''}<div class="dName">${esc(p.name)}</div><div class="dSub">${esc(p.group)} ${p.position?` · ${esc(p.position)}`:''}</div>${rows.length?`<table class="info">${rows.map(r=>`<tr><th>${esc(r[0])}</th><td>${esc(r[1])}</td></tr>`).join('')}</table>`:''}${eduHtml?`<div class="section"><h3>학력</h3><p>${eduHtml}</p></div>`:''}${famHtml?`<div class="section"><h3>가족관계</h3>${famHtml}</div>`:''}${photoSection('착장',p.outfitPhotos)}${p.outfit?`<div class="section"><h3>착장 (설명)</h3><p>${bulletize(p.outfit)}</p></div>`:''}${sections.map(s=>`<div class="section"><h3>${esc(s[0])}</h3><p>${bulletize(s[1])}</p></div>`).join('')}${relHtml?`<div class="section"><h3>인간관계</h3>${relHtml}</div>`:''}${photoSection('어린 시절',p.childhoodPhotos||p.childPhotos)}${photoSection('왓츠인마이백',p.bagPhotos)}<div class="detailActions"><button class="btn" type="button" onclick="openForm('${esc(id)}')">수정</button><button class="btn light" type="button" onclick="deleteProfile('${esc(id)}')">삭제</button></div>`;document.getElementById('detailOverlay').classList.add('show')}
+window.loadProfiles=async function(){if(!db||!colRef){profiles=[];renderGrid();return}try{const snap=await getDocs(colRef);profiles=snap.docs.map(d=>({id:d.id,...d.data()}));renderGrid()}catch(err){console.error(err);renderGrid();alert('프로필을 불러오지 못했어요.\n'+(err?.message||''))}}
+function birthDate(birth){if(!birth)return null;const d=new Date(String(birth).replace(/[.\s]+/g,'-').replace(/-+$/,''));return isNaN(d.getTime())?null:d}
+function renderGrid(){const grid=document.getElementById('grid');let list=activeCat==='전체'?[...profiles]:profiles.filter(p=>asText(p.group)===activeCat);list.sort((a,b)=>{const ga=CATS.indexOf(asText(a.group)),gb=CATS.indexOf(asText(b.group)),gaIdx=ga===-1?CATS.length:ga,gbIdx=gb===-1?CATS.length:gb;if(gaIdx!==gbIdx)return gaIdx-gbIdx;const da=birthDate(a.birth),db2=birthDate(b.birth);if(da&&db2)return da-db2;if(da)return-1;if(db2)return 1;return asText(a.name).localeCompare(asText(b.name),'ko')});if(!list.length){grid.innerHTML='<div class="empty" style="grid-column:1/-1;">등록된 프로필이 없습니다.</div>';return}grid.innerHTML=list.map(p=>`<div class="cardItem" onclick="openDetail('${esc(p.id)}')">${p.image?`<img src="${esc(p.image)}" loading="lazy" decoding="async">`:'<div class="ph">No Image</div>'}<div class="info"><div class="name">${esc(p.name)}</div><div class="aff">${esc(p.group)}${p.position?` · ${esc(p.position)}`:''}</div></div></div>`).join('')}
+window.addEventListener('keydown',e=>{if(e.key!=='Escape')return;document.getElementById('lightbox').classList.remove('show');document.getElementById('detailOverlay').classList.remove('show');document.getElementById('formOverlay').classList.remove('show');document.getElementById('relmapOverlay').classList.remove('show')});
+renderCatOptions(CATS[0]);renderCatBar();loadProfiles().then(()=>{const meta=draftMeta();if(!meta?.open)return;const draft=safeJson(localStorage.getItem('draft'),null);openForm(meta.editingId||null);if(draft){state=Object.assign(state,draft);SIMPLE_FIELDS.forEach(f=>{if(draft[f]!==undefined){const el=document.getElementById('f_'+f);if(el)el.value=draft[f]}});if(draft.group)renderCatOptions(draft.group);if(state.image)document.getElementById('uploadBox').innerHTML=`<img src="${esc(state.image)}">`;renderPhotoRow('outfitPhotos');renderPhotoRow('childPhotos');renderPhotoRow('bagPhotos');renderEdu();renderFamily();renderRelations();updateAgeTag()}}); 
 </script>
 </body>
 </html>
